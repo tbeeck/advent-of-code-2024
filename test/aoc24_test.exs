@@ -26,7 +26,7 @@ defmodule Aoc24Test do
     end
 
     test "part 2 example" do
-      {:ok, contents} = File.read("./test/support/day1/input_part2.txt")
+      {:ok, contents} = File.read("./test/support/day1/example_part2.txt")
 
       output =
         contents
@@ -44,7 +44,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day1.part2()
 
       IO.inspect(output)
-      assert output == nil
+      assert output == 21607792
     end
   end
 end

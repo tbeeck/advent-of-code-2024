@@ -7,6 +7,15 @@ defmodule Aoc24.Day1 do
   end
 
   def part2(input) do
+    {list1, list2} = split_lists(input)
+    freq = Enum.frequencies(list2)
+    IO.inspect(freq)
+    list1
+    |> Enum.map(fn n ->
+      n*Map.get(freq, n, 0)
+    end)
+    |> Enum.sum()
+    |> IO.inspect()
   end
 
   defp split_lists(input) do
