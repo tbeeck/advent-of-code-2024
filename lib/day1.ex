@@ -1,6 +1,7 @@
 defmodule Aoc24.Day1 do
   def part1(input) do
     {list1, list2} = split_lists(input)
+
     Enum.zip(list1, list2)
     |> Enum.map(fn {a, b} -> abs(a - b) end)
     |> Enum.sum()
@@ -9,13 +10,12 @@ defmodule Aoc24.Day1 do
   def part2(input) do
     {list1, list2} = split_lists(input)
     freq = Enum.frequencies(list2)
-    IO.inspect(freq)
+
     list1
     |> Enum.map(fn n ->
-      n*Map.get(freq, n, 0)
+      n * Map.get(freq, n, 0)
     end)
     |> Enum.sum()
-    |> IO.inspect()
   end
 
   defp split_lists(input) do
@@ -43,6 +43,6 @@ defmodule Aoc24.Day1 do
       |> Enum.map(fn {elem, _} -> elem end)
       |> Enum.sort()
 
-      {list1, list2}
+    {list1, list2}
   end
 end
