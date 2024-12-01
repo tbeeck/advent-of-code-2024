@@ -8,10 +8,9 @@ defmodule Aoc24Test do
 
       output =
         contents
-        |> IO.inspect()
         |> Aoc24.Day1.day1()
       IO.inspect(output)
-      assert output == nil
+      assert output == 11
     end
 
     test "round 1 input" do
@@ -19,7 +18,6 @@ defmodule Aoc24Test do
 
       output =
         contents
-        |> IO.inspect()
         |> Aoc24.Day1.day1()
       IO.inspect(output)
       assert output == nil
