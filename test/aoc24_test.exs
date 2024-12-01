@@ -13,14 +13,14 @@ defmodule Aoc24Test do
       assert output == 11
     end
 
-    test "round 1 input" do
+    test "part 1 input" do
       {:ok, contents} = File.read("./test/support/day1/input.txt")
 
       output =
         contents
         |> Aoc24.Day1.day1()
       IO.inspect(output)
-      assert output == nil
+      assert output == 1834060
     end
   end
 end
