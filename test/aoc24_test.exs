@@ -2,7 +2,27 @@ defmodule Aoc24Test do
   use ExUnit.Case
   doctest Aoc24
 
-  test "greets the world" do
-    assert Aoc24.hello() == :world
+  describe "Day 1" do
+    test "example input" do
+      {:ok, contents} = File.read("./test/support/day1/example.txt")
+
+      output =
+        contents
+        |> IO.inspect()
+        |> Aoc24.Day1.day1()
+      IO.inspect(output)
+      assert output == nil
+    end
+
+    test "round 1 input" do
+      {:ok, contents} = File.read("./test/support/day1/input.txt")
+
+      output =
+        contents
+        |> IO.inspect()
+        |> Aoc24.Day1.day1()
+      IO.inspect(output)
+      assert output == nil
+    end
   end
 end
