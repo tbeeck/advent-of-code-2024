@@ -1,5 +1,15 @@
 defmodule Aoc24.Day1 do
-  def day1(input) do
+  def part1(input) do
+    {list1, list2} = split_lists(input)
+    Enum.zip(list1, list2)
+    |> Enum.map(fn {a, b} -> abs(a - b) end)
+    |> Enum.sum()
+  end
+
+  def part2(input) do
+  end
+
+  defp split_lists(input) do
     flat_list =
       input
       |> String.split("\n")
@@ -24,8 +34,6 @@ defmodule Aoc24.Day1 do
       |> Enum.map(fn {elem, _} -> elem end)
       |> Enum.sort()
 
-    Enum.zip(list1, list2)
-    |> Enum.map(fn {a, b} -> abs(a-b) end)
-    |> Enum.sum()
+      {list1, list2}
   end
 end
