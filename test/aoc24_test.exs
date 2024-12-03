@@ -143,7 +143,29 @@ defmodule Aoc24Test do
         |> Aoc24.Day3.part1()
         |> print_out(test_name)
 
-      assert output == 180233229
+      assert output == 180_233_229
+    end
+
+    test "day 3 part 2 example", %{test: test_name} do
+      input = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
+
+      output =
+        input
+        |> Aoc24.Day3.part2()
+        |> print_out(test_name)
+
+      assert output == 48
+    end
+
+    test "day 3 part 2 input", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day3/input_part1.txt")
+
+      output =
+        contents
+        |> Aoc24.Day3.part2()
+        |> print_out(test_name)
+
+      assert output == nil
     end
   end
 
