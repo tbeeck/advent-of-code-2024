@@ -68,7 +68,24 @@ defmodule Aoc24Test do
         |> Aoc24.Day2.part1()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 224
+    end
+
+    test "all inc or dec" do
+      assert Aoc24.Day2.all_inc_or_dec([1,2,3,4,5])
+      assert Aoc24.Day2.all_inc_or_dec([5,4,3,2,1])
+      assert Aoc24.Day2.all_inc_or_dec([5,4,3,2,0])
+      assert Aoc24.Day2.all_inc_or_dec([1])
+      refute Aoc24.Day2.all_inc_or_dec([1,10,11,12,11])
+    end
+
+    test "differences ok" do
+      assert Aoc24.Day2.differences_ok([1,2,3,4,5])
+      assert Aoc24.Day2.differences_ok([1,2,3,4,6])
+      assert Aoc24.Day2.differences_ok([1,2,3,4,7])
+      assert Aoc24.Day2.differences_ok([1])
+      refute Aoc24.Day2.differences_ok([1,2,3,4,8])
+      refute Aoc24.Day2.differences_ok([1,10,11,12])
     end
   end
 
