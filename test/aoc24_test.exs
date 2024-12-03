@@ -90,7 +90,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day2.part2()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 293
     end
 
     test "all inc or dec" do
