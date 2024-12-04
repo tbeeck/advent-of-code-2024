@@ -19,10 +19,42 @@ defmodule Aoc24.Day4 do
     |> length()
   end
 
+  def part2(input) when is_binary(input) do
+    build_wordsearch(input)
+    |> unique_x_finds("MAS")
+    |> Map.keys()
+    |> length()
+  end
+
+  def unique_x_finds(wordsearch, word) do
+    height = length(wordsearch)
+    width = length(Enum.at(wordsearch, 0))
+
+    for x <- 0..(width - 1), y <- 0..(height - 1) do
+      if found_x_word?(wordsearch, x, y, word) do
+        {x, y}
+      end
+    end
+    |> Enum.filter(fn t -> not is_nil(t) end)
+    |> Map.new(fn
+      {x, y} -> {{x, y}, word}
+    end)
+  end
+
+  def found_x_word?(wordsearch, x, y, word) do
+    topleft_start = found_word?(wordsearch, x-1, y-1, 1, 1, word)
+    topright_start = found_word?(wordsearch, x+1, y-1, -1, 1, word)
+    bottomleft_start = found_word?(wordsearch, x-1, y+1, 1, -1, word)
+    bottomright_start = found_word?(wordsearch, x+1, y+1, -1, -1, word)
+    (topleft_start and bottomleft_start) or
+    (topright_start and bottomright_start) or
+    (bottomleft_start and bottomright_start) or
+    (topleft_start and topright_start)
+  end
+
   def unique_finds(wordsearch, word) do
     height = length(wordsearch)
     width = length(Enum.at(wordsearch, 0))
-    IO.inspect({width, height})
 
     for x <- 0..(width - 1), y <- 0..(height - 1), {dx, dy} <- directions() do
       if found_word?(wordsearch, x, y, dx, dy, word) do

@@ -195,6 +195,28 @@ defmodule Aoc24Test do
 
       assert output == 2644
     end
+
+    test "part 2 example", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day4/example.txt")
+
+      output =
+        contents
+        |> Aoc24.Day4.part2()
+        |> print_out(test_name)
+
+      assert output == 9
+    end
+
+    test "part 2 input", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day4/input.txt")
+
+      output =
+        contents
+        |> Aoc24.Day4.part2()
+        |> print_out(test_name)
+
+      assert output == 1952
+    end
   end
 
   defp print_out(output, test) do
