@@ -136,7 +136,7 @@ defmodule Aoc24Test do
     end
 
     test "day 3 part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day3/input_part1.txt")
+      {:ok, contents} = File.read("./test/support/day3/input.txt")
 
       output =
         contents
@@ -158,18 +158,18 @@ defmodule Aoc24Test do
     end
 
     test "day 3 part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day3/input_part1.txt")
+      {:ok, contents} = File.read("./test/support/day3/input.txt")
 
       output =
         contents
         |> Aoc24.Day3.part2()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 95_411_583
     end
 
     test "valid ranges" do
-      assert Aoc24.Day3.valid_ranges([0, 5], [4,10]) == [{0, 4}, {5, 10}]
+      assert Aoc24.Day3.valid_ranges([0, 5], [4, 10]) == [{0, 4}, {5, 10}]
     end
   end
 

@@ -5,17 +5,20 @@ defmodule Aoc24.Day3 do
 
   def part1(input) do
     Regex.scan(pattern(), input)
+    |> IO.inspect()
     |> Enum.map(fn [_, a, b] -> String.to_integer(a) * String.to_integer(b) end)
     |> Enum.reduce(0, &+/2)
-    |> IO.inspect()
   end
 
   def part2(input) when is_binary(input) do
     do_indexes = [0] ++ indexes_of(input, ~r/do\(\)/)
     dont_indexes = indexes_of(input, ~r/don't\(\)/) ++ [byte_size(input)]
+
     valid_ranges(do_indexes, dont_indexes)
     |> merge_intervals()
+    |> IO.inspect()
     |> Enum.map(fn {start_i, end_i} -> binary_slice(input, start_i..end_i) end)
+    |> IO.inspect()
     |> Enum.map(&part1/1)
     |> Enum.reduce(&+/2)
   end
@@ -42,12 +45,14 @@ defmodule Aoc24.Day3 do
 
   def merge_intervals(intervals) do
     intervals
-    |> Enum.sort_by(&elem(&1, 0)) # Ensure the intervals are sorted by start time
+    # Ensure the intervals are sorted by start time
+    |> Enum.sort_by(&elem(&1, 0))
     |> merge_sorted_intervals()
   end
 
   defp merge_sorted_intervals([]), do: []
   defp merge_sorted_intervals([interval]), do: [interval]
+
   defp merge_sorted_intervals([first, second | rest]) do
     {start1, end1} = first
     {start2, end2} = second
