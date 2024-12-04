@@ -15,7 +15,7 @@ defmodule Aoc24.Day3 do
     dont_indexes = indexes_of(input, ~r/don't\(\)/) ++ [byte_size(input)]
     valid_ranges(do_indexes, dont_indexes)
     |> merge_intervals()
-    |> Enum.map(fn {start_i, end_i} -> String.slice(input, start_i..end_i) end)
+    |> Enum.map(fn {start_i, end_i} -> binary_slice(input, start_i..end_i) end)
     |> Enum.map(&part1/1)
     |> Enum.reduce(&+/2)
   end
