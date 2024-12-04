@@ -167,6 +167,10 @@ defmodule Aoc24Test do
 
       assert output == nil
     end
+
+    test "valid ranges" do
+      assert Aoc24.Day3.valid_ranges([0, 5], [4,10]) == [{0, 4}, {5, 10}]
+    end
   end
 
   defp print_out(output, test) do
