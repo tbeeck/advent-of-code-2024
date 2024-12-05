@@ -15,11 +15,35 @@ defmodule Aoc24.Day5 do
   end
 
   def part2(input) do
-    0
+    {pairs, lists} = process_input(input)
+    graph = build_graph(pairs)
+
+    lists
+    |> Enum.filter(fn l -> !print_order_ok?(l, graph) end)
+    |> Enum.map(fn l -> sort_print_order(l, indegrees(graph, l), graph) end)
+    |> Enum.map(fn l -> get_middle(l) end)
+    |> Enum.sum()
   end
 
   def get_middle(l) do
     Enum.at(l, div(Enum.count(l), 2))
+  end
+
+  def sort_print_order([], _, _), do: []
+  def sort_print_order(print_list, indeg, graph) do
+    first =
+      print_list
+      |> Enum.filter(fn n -> Map.get(indeg, n, 0) <= 0 end)
+      |> List.first()
+
+    remaining = Enum.reject(print_list, &(&1 == first))
+
+    indeg =
+      Enum.reduce(Map.get(graph, first, []), indeg, fn child, indeg ->
+        Map.update(indeg, child, 0, &(&1 - 1))
+      end)
+
+    [first | sort_print_order(remaining, indeg, graph)]
   end
 
   def print_order_ok?(print_list, graph) do
@@ -35,7 +59,6 @@ defmodule Aoc24.Day5 do
 
           {true, indeg}
         else
-          IO.puts("Failed on #{num}")
           {false, indeg}
         end
       else
@@ -56,37 +79,6 @@ defmodule Aoc24.Day5 do
         end
       end)
     end)
-  end
-
-  @spec topo_sort(map()) :: list(integer())
-  def topo_sort(graph) do
-    visited = MapSet.new()
-    stack = []
-
-    {new_stack, _} =
-      Enum.reduce(graph, {stack, visited}, fn {node, _}, {stack, visited} ->
-        {new_stack, visited} =
-          topo_dfs(graph, node, stack, visited)
-
-        {new_stack, visited}
-      end)
-
-    new_stack
-  end
-
-  defp topo_dfs(graph, node, stack, visited) do
-    if MapSet.member?(visited, node) do
-      {stack, visited}
-    else
-      visited = MapSet.put(visited, node)
-
-      {new_stack, visited} =
-        Enum.reduce(Map.get(graph, node, []), {stack, visited}, fn next_node, {stack, visited} ->
-          topo_dfs(graph, next_node, stack, visited)
-        end)
-
-      {[node | new_stack], visited}
-    end
   end
 
   def build_graph(pairs) do

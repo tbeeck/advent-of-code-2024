@@ -242,15 +242,28 @@ defmodule Aoc24Test do
       assert output == 6267
     end
 
-    test "topo sort" do
-      graph = %{
-        1 => [2, 3],
-        2 => [3],
-        3 => [4],
-        4 => []
-      }
-      assert Aoc24.Day5.topo_sort(graph) == [1, 2, 3, 4]
+    test "part 2 example", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day5/example.txt")
+
+      output =
+        contents
+        |> Aoc24.Day5.part2()
+        |> print_out(test_name)
+
+      assert output == 123
     end
+
+    test "part 2 input", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day5/input.txt")
+
+      output =
+        contents
+        |> Aoc24.Day5.part2()
+        |> print_out(test_name)
+
+      assert output == 5184
+    end
+
   end
 
   defp print_out(output, test) do
