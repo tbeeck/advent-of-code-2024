@@ -10,8 +10,7 @@ defmodule Aoc24.Day5 do
   end
 
   def build_graph(pairs) do
-    result = Map.new()
-    Enum.reduce(pairs, result, fn [a, b], acc ->
+    Enum.reduce(pairs, Map.new(), fn [a, b], acc ->
       cur = Map.get(acc, a, [])
       Map.put(acc, a, [b] ++ cur)
     end)
@@ -32,7 +31,6 @@ defmodule Aoc24.Day5 do
           num
         end)
       end)
-      |> IO.inspect(charlists: :as_lists)
 
     print_lists =
       lists
@@ -44,7 +42,6 @@ defmodule Aoc24.Day5 do
           num
         end)
       end)
-      |> IO.inspect(charlists: :as_lists)
 
     {graph_pairs, print_lists}
   end
