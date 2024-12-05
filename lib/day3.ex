@@ -5,7 +5,6 @@ defmodule Aoc24.Day3 do
 
   def part1(input) do
     Regex.scan(pattern(), input)
-    |> IO.inspect()
     |> Enum.map(fn [_, a, b] -> String.to_integer(a) * String.to_integer(b) end)
     |> Enum.reduce(0, &+/2)
   end
@@ -16,9 +15,7 @@ defmodule Aoc24.Day3 do
 
     valid_ranges(do_indexes, dont_indexes)
     |> merge_intervals()
-    |> IO.inspect()
     |> Enum.map(fn {start_i, end_i} -> binary_slice(input, start_i..end_i) end)
-    |> IO.inspect()
     |> Enum.map(&part1/1)
     |> Enum.reduce(&+/2)
   end
