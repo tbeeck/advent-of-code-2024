@@ -2,10 +2,15 @@ defmodule Aoc24.Day5 do
   def part1(input) do
     {pairs, lists} = process_input(input)
     graph = build_graph(pairs)
-    order = topo_sort(graph)
 
     lists
-    |> Enum.map(fn l -> if print_order_ok?(l, order) do get_middle(l) else 0 end end)
+    |> Enum.map(fn l ->
+      if print_order_ok?(l, graph) do
+        get_middle(l)
+      else
+        0
+      end
+    end)
     |> Enum.sum()
   end
 
@@ -17,26 +22,40 @@ defmodule Aoc24.Day5 do
     Enum.at(l, div(Enum.count(l), 2))
   end
 
-  def print_order_ok?(print_list, order) do
-    order = order
-    |> Enum.filter(fn n -> Enum.member?(print_list, n) end)
+  def print_order_ok?(print_list, graph) do
     print_list
-    |> Enum.with_index()
-    |> IO.inspect()
-    |> Enum.reduce({true, order}, fn {num, idx}, {ok, order} ->
+    |> Enum.reduce({true, indegrees(graph, print_list)}, fn num, {ok, indeg} ->
       if ok do
-        idx_in_order = Enum.find_index(order, fn n -> n == num end)
-        if idx_in_order == nil do
-          {true, order}
+        if Map.get(indeg, num, 0) <= 0 do
+          # reduce indegrees of all children
+          indeg =
+            Enum.reduce(Map.get(graph, num, []), indeg, fn child, indeg ->
+              Map.update(indeg, child, 0, &(&1 - 1))
+            end)
+
+          {true, indeg}
         else
-          {idx_in_order <= idx, order}
+          IO.puts("Failed on #{num}")
+          {false, indeg}
         end
       else
-        {false, order}
+        {ok, indeg}
       end
     end)
-    |> IO.inspect()
     |> elem(0)
+  end
+
+  @spec indegrees(map(), list()) :: map()
+  def indegrees(graph, print_list) do
+    Enum.reduce(graph, Map.new(), fn {node, edges}, acc ->
+      Enum.reduce(edges, acc, fn edge, acc ->
+        if Enum.member?(print_list, node) and Enum.member?(print_list, edge) do
+          Map.update(acc, edge, 1, &(&1 + 1))
+        else
+          acc
+        end
+      end)
+    end)
   end
 
   @spec topo_sort(map()) :: list(integer())
@@ -53,7 +72,6 @@ defmodule Aoc24.Day5 do
       end)
 
     new_stack
-    |> IO.inspect()
   end
 
   defp topo_dfs(graph, node, stack, visited) do
@@ -82,7 +100,6 @@ defmodule Aoc24.Day5 do
       cur = Map.get(acc, a, [])
       Map.put(acc, a, [b] ++ cur)
     end)
-    |> IO.inspect(charlists: :as_lists)
   end
 
   @spec process_input(binary()) :: {list(list(integer())), list(list(integer()))}

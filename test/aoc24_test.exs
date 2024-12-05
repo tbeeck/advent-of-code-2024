@@ -239,7 +239,17 @@ defmodule Aoc24Test do
         |> Aoc24.Day5.part1()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 6267
+    end
+
+    test "topo sort" do
+      graph = %{
+        1 => [2, 3],
+        2 => [3],
+        3 => [4],
+        4 => []
+      }
+      assert Aoc24.Day5.topo_sort(graph) == [1, 2, 3, 4]
     end
   end
 
