@@ -13,24 +13,26 @@ defmodule Aoc24.Day6 do
 
   def part1(input) do
     grid = make_grid(input)
-    height = length(grid)
-    width = length(List.first(grid))
     start = find_start(grid)
     grid_struct = %Grid{
-      width: width,
-      height: height,
       grid: grid,
+      height: length(grid),
+      width: length(List.first(grid)),
       visited: MapSet.new([start]),
       position: start,
       direction: 0
     }
     |> IO.inspect()
 
-    0
+    Map.keys(grid_struct.visited) |> length()
   end
 
   def part2(input) do
     0
+  end
+
+  def walk(grid) do
+    grid
   end
 
   def find_start(grid) do
