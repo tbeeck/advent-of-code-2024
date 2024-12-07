@@ -29,8 +29,8 @@ defmodule Aoc24.Day6 do
 
     MapSet.to_list(result.visited)
     |> Enum.map(fn {pos, _} -> pos end)
+    |> Enum.sort()
     |> Enum.dedup()
-    |> IO.inspect()
     |> length()
   end
 
@@ -46,14 +46,26 @@ defmodule Aoc24.Day6 do
     end
   end
 
+  def print_filled_grid(coords, grid) do
+    coords
+    |> Enum.reduce(grid, fn {row, col}, acc_grid ->
+      new_grid = List.replace_at(acc_grid.grid, row, List.replace_at(Enum.at(acc_grid.grid, row), col, "X"))
+      %Grid{
+        acc_grid | grid: new_grid
+      }
+    end)
+    |> IO.inspect
+    coords
+  end
+
   def next_state(grid) do
     new_visited = MapSet.put(grid.visited, {grid.position, grid.direction})
     {forward, new_pos} = can_go_forward(grid)
 
     if forward do
-      {a, b} = new_pos
+      {row, col} = new_pos
 
-      if not in_bounds(a, b, grid) do
+      if not in_bounds(row, col, grid) do
         %Grid{grid | visited: new_visited}
       else
         %Grid{
@@ -100,6 +112,5 @@ defmodule Aoc24.Day6 do
     input
     |> String.split()
     |> Enum.map(fn line -> String.graphemes(line) end)
-    |> IO.inspect()
   end
 end
