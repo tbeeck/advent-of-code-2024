@@ -76,15 +76,16 @@ defmodule Aoc24.Day6 do
     {d_row, d_col} = Enum.at(directions(), Integer.mod(grid.direction, length(directions())))
     {new_row, new_col} = {d_row + row, d_col + col}
 
-    possible =
-      not in_bounds(new_row, new_col, grid) or
-        Enum.at(Enum.at(grid.grid, new_row), new_col) == "."
-
-    {possible, {new_row, new_col}}
+    if in_bounds(new_row, new_col, grid) do
+      char = Enum.at(Enum.at(grid.grid, new_row), new_col)
+      {char != "#", {new_row, new_col}}
+    else
+      {true, {new_row, new_col}}
+    end
   end
 
   def in_bounds(row, col, grid) do
-    0 <= row and row <= grid.height and 0 <= col and col <= grid.width
+    0 <= row and row < grid.height and 0 <= col and col < grid.width
   end
 
   @spec find_start(any()) :: list()
