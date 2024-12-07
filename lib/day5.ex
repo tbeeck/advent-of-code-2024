@@ -30,6 +30,7 @@ defmodule Aoc24.Day5 do
   end
 
   def sort_print_order([], _, _), do: []
+
   def sort_print_order(print_list, indeg, graph) do
     first =
       print_list

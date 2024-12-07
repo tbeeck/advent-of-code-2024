@@ -42,14 +42,15 @@ defmodule Aoc24.Day4 do
   end
 
   def found_x_word?(wordsearch, x, y, word) do
-    topleft_start = found_word?(wordsearch, x-1, y-1, 1, 1, word)
-    topright_start = found_word?(wordsearch, x+1, y-1, -1, 1, word)
-    bottomleft_start = found_word?(wordsearch, x-1, y+1, 1, -1, word)
-    bottomright_start = found_word?(wordsearch, x+1, y+1, -1, -1, word)
+    topleft_start = found_word?(wordsearch, x - 1, y - 1, 1, 1, word)
+    topright_start = found_word?(wordsearch, x + 1, y - 1, -1, 1, word)
+    bottomleft_start = found_word?(wordsearch, x - 1, y + 1, 1, -1, word)
+    bottomright_start = found_word?(wordsearch, x + 1, y + 1, -1, -1, word)
+
     (topleft_start and bottomleft_start) or
-    (topright_start and bottomright_start) or
-    (bottomleft_start and bottomright_start) or
-    (topleft_start and topright_start)
+      (topright_start and bottomright_start) or
+      (bottomleft_start and bottomright_start) or
+      (topleft_start and topright_start)
   end
 
   def unique_finds(wordsearch, word) do

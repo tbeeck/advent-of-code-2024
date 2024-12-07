@@ -74,6 +74,7 @@ defmodule Aoc24.Day2 do
         List.delete_at(report, i)
       end)
       |> Enum.any?(fn new_report -> differences_ok(new_report) and all_inc_or_dec(new_report) end)
+
     (all_inc_or_dec(report) and differences_ok(report)) or ok
   end
 

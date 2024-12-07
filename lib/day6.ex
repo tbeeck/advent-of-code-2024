@@ -45,15 +45,19 @@ defmodule Aoc24.Day6 do
     for row <- 0..(grid.height - 1), col <- 0..(grid.width - 1) do
       {row, col}
     end
-    |> Task.async_stream(fn {row, col} ->
-      if can_try_block?(grid, row, col) do
-        temp_grid = fill_grid_with_coords([{row, col}], grid, "#")
-        %{ends_in_cycle: ends_in_cycle} = walk(temp_grid)
-        ends_in_cycle
-      else
-        false
-      end
-    end, max_concurrency: System.schedulers_online(), timeout: :infinity)
+    |> Task.async_stream(
+      fn {row, col} ->
+        if can_try_block?(grid, row, col) do
+          temp_grid = fill_grid_with_coords([{row, col}], grid, "#")
+          %{ends_in_cycle: ends_in_cycle} = walk(temp_grid)
+          ends_in_cycle
+        else
+          false
+        end
+      end,
+      max_concurrency: System.schedulers_online(),
+      timeout: :infinity
+    )
     |> Enum.map(fn {:ok, result} -> result end)
     |> Enum.frequencies()
     |> Map.get(true, 0)
