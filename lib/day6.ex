@@ -1,6 +1,6 @@
 defmodule Aoc24.Day6 do
   defmodule Grid do
-    defstruct [:width, :height, :grid, :position, :visited, :direction]
+    defstruct [:width, :height, :grid, :position, :visited, :direction, :ends_in_cycle]
   end
 
   def directions do
@@ -12,19 +12,24 @@ defmodule Aoc24.Day6 do
     ]
   end
 
-  def part1(input) do
-    grid = make_grid(input)
-    start = find_start(grid) |> List.first()
+  def new_grid(input) do
+    grid_list = make_grid(input)
+    start = find_start(grid_list) |> List.first()
 
+    %Grid{
+      grid: grid_list,
+      height: length(grid_list),
+      width: length(List.first(grid_list)),
+      visited: MapSet.new(),
+      position: start,
+      direction: 0,
+      ends_in_cycle: true
+    }
+  end
+
+  def part1(input) do
     result =
-      %Grid{
-        grid: grid,
-        height: length(grid),
-        width: length(List.first(grid)),
-        visited: MapSet.new(),
-        position: start,
-        direction: 0
-      }
+      new_grid(input)
       |> walk()
 
     MapSet.to_list(result.visited)
@@ -35,7 +40,19 @@ defmodule Aoc24.Day6 do
   end
 
   def part2(input) do
-    0
+    grid = new_grid(input)
+
+    for row <- 0..grid.height-1, col <- 0..grid.width-1 do
+      if can_try_block?(grid, row, col) do
+        temp_grid = fill_grid_with_coords([{row, col}], grid, "#")
+        %{ends_in_cycle: ends_in_cycle} = walk(temp_grid)
+      ends_in_cycle
+      else
+        false
+      end
+    end
+    |> Enum.frequencies()
+    |> Map.get(true, 0)
   end
 
   def walk(grid) do
@@ -46,16 +63,33 @@ defmodule Aoc24.Day6 do
     end
   end
 
+  def can_try_block?(grid, row, col) do
+    char = Enum.at(Enum.at(grid.grid, row), col)
+    char == "."
+  end
+
   def print_filled_grid(coords, grid) do
+    fill_grid_with_coords(coords, grid, "X")
+    |> IO.inspect()
+
+    coords
+  end
+
+  def fill_grid_with_coords(coords, grid, char) do
     coords
     |> Enum.reduce(grid, fn {row, col}, acc_grid ->
-      new_grid = List.replace_at(acc_grid.grid, row, List.replace_at(Enum.at(acc_grid.grid, row), col, "X"))
+      new_grid =
+        List.replace_at(
+          acc_grid.grid,
+          row,
+          List.replace_at(Enum.at(acc_grid.grid, row), col, char)
+        )
+
       %Grid{
-        acc_grid | grid: new_grid
+        acc_grid
+        | grid: new_grid
       }
     end)
-    |> IO.inspect
-    coords
   end
 
   def next_state(grid) do
@@ -66,7 +100,7 @@ defmodule Aoc24.Day6 do
       {row, col} = new_pos
 
       if not in_bounds(row, col, grid) do
-        %Grid{grid | visited: new_visited}
+        %Grid{grid | visited: new_visited, ends_in_cycle: false}
       else
         %Grid{
           grid
