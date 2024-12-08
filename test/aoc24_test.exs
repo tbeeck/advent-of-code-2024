@@ -415,6 +415,7 @@ defmodule Aoc24Test do
       ..........
       ..........
       """
+
       assert Aoc24.Day8.part2(input) == 9
     end
   end

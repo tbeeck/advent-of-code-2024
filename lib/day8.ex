@@ -11,14 +11,15 @@ defmodule Aoc24.Day8 do
     grid = process_input(input)
     nodes = node_map(grid)
 
-    antennae = Map.values(nodes)
-    |> Enum.flat_map(fn l ->
-      if length(l) >= 2 do
-        l
-      else
-        []
-      end
-    end)
+    antennae =
+      Map.values(nodes)
+      |> Enum.flat_map(fn l ->
+        if length(l) >= 2 do
+          l
+        else
+          []
+        end
+      end)
 
     antinode_coords(nodes, grid, fn t1, t2 -> antinodes_for_long(t1, t2, grid) end)
     |> Enum.concat(antennae)
@@ -75,7 +76,7 @@ defmodule Aoc24.Day8 do
     {dy, dx} = {y2 - y1, x2 - x1}
 
     for i <- 1..100 do
-      [{y2 + (dy * i), x2 + (dx * i)}, {y1 - (dy * i), x1 - (dx * i)}]
+      [{y2 + dy * i, x2 + dx * i}, {y1 - dy * i, x1 - dx * i}]
     end
     |> Enum.flat_map(fn l -> l end)
     |> Enum.filter(&in_bounds(&1, grid))
