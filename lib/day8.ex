@@ -2,17 +2,13 @@ defmodule Aoc24.Day8 do
   def part1(input) do
     grid = process_input(input)
     nodes = node_map(grid)
-    coord_map = antinode_coords(nodes, grid)
 
-    coord_map
-    |> Enum.flat_map(fn {_, v} -> v end)
-    |> Enum.sort()
-    |> Enum.dedup()
+    antinode_coords(nodes, grid)
     |> length()
   end
 
   def part2(input) do
-    0
+    grid = process_input(input)
   end
 
   def in_bounds({y, x}, grid) do
@@ -43,6 +39,9 @@ defmodule Aoc24.Day8 do
         |> Enum.filter(fn pair -> not Enum.member?(nodes, pair) end)
       )
     end)
+    |> Enum.flat_map(fn {_, v} -> v end)
+    |> Enum.sort()
+    |> Enum.dedup()
   end
 
   def antinodes_for({y1, x1}, {y2, x2}) do
