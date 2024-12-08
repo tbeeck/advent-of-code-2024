@@ -377,7 +377,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day8.part1()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 228
     end
   end
 
