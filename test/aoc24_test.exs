@@ -357,6 +357,30 @@ defmodule Aoc24Test do
     end
   end
 
+  describe "Day 8" do
+    test "part 1 example", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day8/example.txt")
+
+      output =
+        contents
+        |> Aoc24.Day8.part1()
+        |> print_out(test_name)
+
+      assert output == 14
+    end
+
+    test "part 1 input", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day8/input.txt")
+
+      output =
+        contents
+        |> Aoc24.Day8.part1()
+        |> print_out(test_name)
+
+      assert output == nil
+    end
+  end
+
   defp print_out(output, test) do
     IO.puts("#{Atom.to_string(test)}:\t#{Integer.to_string(output)}")
     output
