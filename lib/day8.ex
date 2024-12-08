@@ -25,7 +25,6 @@ defmodule Aoc24.Day8 do
     |> Enum.concat(antennae)
     |> Enum.sort()
     |> Enum.dedup()
-    |> IO.inspect()
     |> length()
   end
 
@@ -53,16 +52,13 @@ defmodule Aoc24.Day8 do
         |> Enum.flat_map(fn {t1, t2} -> antinode_gen.(t1, t2) end)
         |> Enum.sort()
         |> Enum.dedup()
-        |> IO.inspect()
         |> Enum.filter(fn pair -> in_bounds(pair, grid) end)
         |> Enum.filter(fn pair -> not Enum.member?(nodes, pair) end)
-        |> IO.inspect()
       )
     end)
     |> Enum.flat_map(fn {_, v} -> v end)
     |> Enum.sort()
     |> Enum.dedup()
-    |> IO.inspect()
   end
 
   def antinodes_for({y1, x1}, {y2, x2}, grid) do
