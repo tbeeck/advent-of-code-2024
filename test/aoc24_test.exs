@@ -445,7 +445,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day9.part1()
         |> print_out(test_name)
 
-      assert output == 228
+      assert output == 6_211_348_208_140
     end
 
     test "part 2 example", %{test: test_name} do
@@ -468,7 +468,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day9.part2()
         |> print_out(test_name)
 
-      assert output == 6239783302560
+      assert output == 6_239_783_302_560
     end
   end
 
