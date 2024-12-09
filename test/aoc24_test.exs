@@ -421,6 +421,10 @@ defmodule Aoc24Test do
   end
 
   describe "Day 9" do
+    test "basic example" do
+      assert Aoc24.Day9.part1("12345") == 60
+    end
+
     test "part 1 example", %{test: test_name} do
       {:ok, contents} = File.read("./test/support/day9/example.txt")
 

@@ -2,6 +2,7 @@ defmodule Aoc24.Day9 do
   def part1(input) do
     process_input(input)
     |> compact()
+    |> IO.inspect(limit: :infinity)
     |> checksum()
   end
 
@@ -24,10 +25,10 @@ defmodule Aoc24.Day9 do
 
         if last_i != -1 do
           file = Enum.at(rest, last_i)
-          rest = List.replace_at(rest, last_i, {:free})
+          rest = Enum.slice(rest, 0..last_i-1)
           [file | compact(rest)]
         else
-          blocks
+          []
         end
     end
   end
