@@ -2,7 +2,6 @@ defmodule Aoc24.Day9 do
   def part1(input) do
     process_input(input)
     |> compact()
-    |> IO.inspect(limit: :infinity)
     |> checksum()
   end
 
@@ -33,7 +32,6 @@ defmodule Aoc24.Day9 do
     process_input_p2(input)
     |> compact_p2()
     |> expand()
-    |> IO.inspect()
     |> checksum()
   end
 
