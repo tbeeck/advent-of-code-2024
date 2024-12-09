@@ -420,6 +420,31 @@ defmodule Aoc24Test do
     end
   end
 
+  describe "Day 9" do
+    test "part 1 example", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day9/example.txt")
+
+      output =
+        contents
+        |> Aoc24.Day9.part1()
+        |> print_out(test_name)
+
+      assert output == 1928
+    end
+
+    @tag timeout: :infinity
+    test "part 1 input", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day9/input.txt")
+
+      output =
+        contents
+        |> Aoc24.Day9.part1()
+        |> print_out(test_name)
+
+      assert output == 228
+    end
+  end
+
   defp print_out(output, test) do
     IO.puts("#{Atom.to_string(test)}:\t#{Integer.to_string(output)}")
     output
