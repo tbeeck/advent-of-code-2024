@@ -25,7 +25,7 @@ defmodule Aoc24.Day9 do
 
         if last_i != -1 do
           file = Enum.at(rest, last_i)
-          rest = Enum.slice(rest, 0..last_i-1)
+          rest = Enum.slice(rest, 0..(last_i - 1))
           [file | compact(rest)]
         else
           []
@@ -70,13 +70,9 @@ defmodule Aoc24.Day9 do
     |> Enum.with_index()
     |> Enum.flat_map(fn {size, idx} ->
       if Integer.mod(idx, 2) == 0 do
-        for _ <- 1..size do
-          {:file, Integer.floor_div(idx, 2)}
-        end
+        List.duplicate({:file, Integer.floor_div(idx, 2)}, size)
       else
-        for _ <- 1..size do
-          {:free}
-        end
+        List.duplicate({:free}, size)
       end
     end)
   end
