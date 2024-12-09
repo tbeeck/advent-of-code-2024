@@ -447,6 +447,29 @@ defmodule Aoc24Test do
 
       assert output == 228
     end
+
+    test "part 2 example", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day9/example.txt")
+
+      output =
+        contents
+        |> Aoc24.Day9.part2()
+        |> print_out(test_name)
+
+      assert output == 2858
+    end
+
+    @tag timeout: :infinity
+    test "part 2 input", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day9/input.txt")
+
+      output =
+        contents
+        |> Aoc24.Day9.part2()
+        |> print_out(test_name)
+
+      assert output == nil
+    end
   end
 
   defp print_out(output, test) do
