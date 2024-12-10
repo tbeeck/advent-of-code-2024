@@ -15,11 +15,12 @@ defmodule Aoc24.Day10 do
 
     for row <- 0..(grid.height - 1), col <- 0..(grid.width - 1) do
       if elem(elem(grid.grid, row), col) == 0 do
-        IO.inspect({row, col})
-        nines = dfs(grid, {row, col})
-        |> Enum.sort()
-        |> Enum.dedup()
-        |> IO.inspect()
+
+        nines =
+          dfs(grid, {row, col})
+          |> Enum.sort()
+          |> Enum.dedup()
+
         length(nines)
       else
         0
@@ -47,11 +48,71 @@ defmodule Aoc24.Day10 do
         neighbors
         |> Enum.filter(fn {a, b} -> in_bounds?(grid, {a, b}) end)
         |> Enum.filter(fn {a, b} -> not visited?(grid, {a, b}) end)
-        |> Enum.filter(fn {a, b} -> elem(elem(grid.grid, a), b) == val+1 end)
+        |> Enum.filter(fn {a, b} -> elem(elem(grid.grid, a), b) == val + 1 end)
         |> Enum.flat_map(fn {a, b} -> dfs(grid, {a, b}) end)
 
       if elem(elem(grid.grid, row), col) == 9 do
         [{row, col}]
+      else
+        results
+      end
+    end
+  end
+
+  def part2(input) do
+    map = process_input(input)
+
+    grid = %Grid{
+      grid: map,
+      height: tuple_size(map),
+      width: tuple_size(elem(map, 0)),
+      visited: MapSet.new()
+    }
+
+    for row <- 0..(grid.height - 1), col <- 0..(grid.width - 1) do
+      if elem(elem(grid.grid, row), col) == 0 do
+        paths =
+          dfs_routes(grid, {row, col})
+          |> Enum.sort()
+          |> Enum.dedup()
+
+        length(paths)
+      else
+        0
+      end
+    end
+    |> Enum.sum()
+  end
+
+  def dfs_routes(grid, {row, col}) do
+    if not in_bounds?(grid, {row, col}) or visited?(grid, {row, col}) do
+      []
+    else
+      val = elem(elem(grid.grid, row), col)
+      grid = %Grid{grid | visited: MapSet.put(grid.visited, {row, col})}
+
+      neighbors =
+        [
+          {row + 1, col},
+          {row, col + 1},
+          {row - 1, col},
+          {row, col - 1}
+        ]
+
+      results =
+        neighbors
+        |> Enum.filter(fn {a, b} -> in_bounds?(grid, {a, b}) end)
+        |> Enum.filter(fn {a, b} -> not visited?(grid, {a, b}) end)
+        |> Enum.filter(fn {a, b} -> elem(elem(grid.grid, a), b) == val + 1 end)
+        |> Enum.flat_map(fn {a, b} -> dfs_routes(grid, {a, b}) end)
+
+      if elem(elem(grid.grid, row), col) == 9 do
+        path =
+          grid.visited
+          |> Enum.sort()
+          |> List.to_tuple()
+
+        [{path}]
       else
         results
       end
@@ -64,10 +125,6 @@ defmodule Aoc24.Day10 do
 
   def visited?(grid, {row, col}) do
     {row, col} in grid.visited
-  end
-
-  def part2(input) do
-    0
   end
 
   def process_input(input) do
