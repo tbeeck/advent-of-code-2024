@@ -4,7 +4,7 @@ defmodule Aoc24Test do
 
   describe "Day 1" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/example_part1.txt")
+      {:ok, contents} = File.read("./test/support/day1/example.txt")
 
       output =
         contents
@@ -15,7 +15,7 @@ defmodule Aoc24Test do
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/input_part1.txt")
+      {:ok, contents} = File.read("./test/support/day1/input.txt")
 
       output =
         contents
@@ -26,7 +26,7 @@ defmodule Aoc24Test do
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/example_part2.txt")
+      {:ok, contents} = File.read("./test/support/day1/example.txt")
 
       output =
         contents
@@ -37,7 +37,7 @@ defmodule Aoc24Test do
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/input_part2.txt")
+      {:ok, contents} = File.read("./test/support/day1/input.txt")
 
       output =
         contents
@@ -50,7 +50,7 @@ defmodule Aoc24Test do
 
   describe "Day 2" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/example_part1.txt")
+      {:ok, contents} = File.read("./test/support/day2/example.txt")
 
       output =
         contents
@@ -61,7 +61,7 @@ defmodule Aoc24Test do
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/input_part1.txt")
+      {:ok, contents} = File.read("./test/support/day2/input.txt")
 
       output =
         contents
@@ -72,7 +72,7 @@ defmodule Aoc24Test do
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/example_part1.txt")
+      {:ok, contents} = File.read("./test/support/day2/example.txt")
 
       output =
         contents
@@ -83,7 +83,7 @@ defmodule Aoc24Test do
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/input_part1.txt")
+      {:ok, contents} = File.read("./test/support/day2/input.txt")
 
       output =
         contents
