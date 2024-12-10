@@ -473,6 +473,17 @@ defmodule Aoc24Test do
   end
 
   describe "Day 10" do
+    test "simple" do
+      input = """
+      0123
+      1234
+      8765
+      9876
+      """
+
+      assert Aoc24.Day10.part1(input) == 1
+    end
+
     test "part 1 example", %{test: test_name} do
       {:ok, contents} = File.read("./test/support/day10/example.txt")
 
@@ -492,7 +503,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day10.part1()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 667
     end
   end
 
