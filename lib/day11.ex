@@ -8,7 +8,11 @@ defmodule Aoc24.Day11 do
   end
 
   def part2(input) do
-    0
+    stones =
+      process_input(input)
+
+    Enum.reduce(1..75, stones, fn _, acc -> blink(acc, 1) end)
+    |> length()
   end
 
   def blink(stones, 0) when is_list(stones), do: stones
