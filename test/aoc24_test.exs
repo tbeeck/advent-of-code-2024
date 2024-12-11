@@ -530,6 +530,33 @@ defmodule Aoc24Test do
   end
 
   describe "Day 11" do
+    test "basic" do
+      assert Aoc24.Day11.blink([125, 17], 6) == [
+               2_097_446_912,
+               14168,
+               4048,
+               2,
+               0,
+               2,
+               4,
+               40,
+               48,
+               2024,
+               40,
+               48,
+               80,
+               96,
+               2,
+               8,
+               6,
+               7,
+               6,
+               0,
+               3,
+               2
+             ]
+    end
+
     test "part 1 example", %{test: test_name} do
       {:ok, contents} = File.read("./test/support/day11/example.txt")
 
