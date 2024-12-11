@@ -1,5 +1,6 @@
 defmodule Aoc24.Day11 do
   alias Aoc24.Day11.EtsCache
+
   def part1(input) do
     stones =
       process_input(input)
@@ -29,68 +30,18 @@ defmodule Aoc24.Day11 do
   end
 
   def part2(input) do
-    Aoc24.Day11.EtsCache.start_link()
     stones =
       process_input(input)
 
+    do_blinks(stones, 75)
+  end
+
+  def do_blinks(stones, times) do
+    EtsCache.start_link()
+
     stones
-    |> Enum.map(fn stone -> EtsCache.get_count({stone, 75}) end)
+    |> Enum.map(fn stone -> EtsCache.get_count({stone, times}) end)
     |> Enum.sum()
-  end
-
-  @spec blink_count(integer(), integer(), map()) :: {integer(), map()}
-  def blink_count(_, 0, memo) do
-    {1, memo}
-  end
-
-  @spec blink_count(integer(), integer(), map()) :: {integer(), map()}
-  def blink_count(stone, 1, memo) do
-    if stone == 0 do
-      {1, Map.put(memo, {stone, 1}, 1)}
-    else
-      if even_digits?(stone) do
-        {2, Map.put(memo, {stone, 1}, 2)}
-      else
-        {1, Map.put(memo, {stone, 1}, 1)}
-      end
-    end
-  end
-
-  @spec blink_count(integer(), integer(), map()) :: {integer(), map()}
-  def blink_count(stone, times, memo) do
-    if {stone, times} in memo do
-      {Map.get(memo, {stone, times}), memo}
-    else
-      {total, memo} =
-        blink(stone)
-        |> Enum.reduce({0, memo}, fn new_stone, {acc_count, acc_memo} ->
-          {count, acc_memo} = blink_count(new_stone, times - 1, acc_memo)
-          {acc_count + count, acc_memo}
-        end)
-
-      {total, Map.put(memo, {stone, times}, total)}
-    end
-  end
-
-  def even_digits?(num) do
-    Integer.mod(String.length(Integer.to_string(num)), 2) == 0
-  end
-
-  def split_digits(num) do
-    s = Integer.to_string(num)
-    half = Integer.floor_div(String.length(s), 2)
-
-    String.split_at(s, half)
-    |> Tuple.to_list()
-    |> Enum.map(fn s ->
-      elem(Integer.parse(s), 0)
-    end)
-  end
-
-  def process_input(input) do
-    input
-    |> String.split()
-    |> Enum.map(fn s -> elem(Integer.parse(s), 0) end)
   end
 
   defmodule EtsCache do
@@ -141,5 +92,26 @@ defmodule Aoc24.Day11 do
       :ets.insert(:memo_table, {{stone, times}, total})
       total
     end
+  end
+
+  def even_digits?(num) do
+    Integer.mod(String.length(Integer.to_string(num)), 2) == 0
+  end
+
+  def split_digits(num) do
+    s = Integer.to_string(num)
+    half = Integer.floor_div(String.length(s), 2)
+
+    String.split_at(s, half)
+    |> Tuple.to_list()
+    |> Enum.map(fn s ->
+      elem(Integer.parse(s), 0)
+    end)
+  end
+
+  def process_input(input) do
+    input
+    |> String.split()
+    |> Enum.map(fn s -> elem(Integer.parse(s), 0) end)
   end
 end
