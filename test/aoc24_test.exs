@@ -601,7 +601,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day11.part2()
         |> print_out(test_name)
 
-      assert output == 0
+      assert output == 221280540398419
     end
   end
 
