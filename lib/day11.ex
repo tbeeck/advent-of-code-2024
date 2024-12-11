@@ -13,7 +13,7 @@ defmodule Aoc24.Day11 do
 
   def blink(stones, 0) when is_list(stones), do: stones
 
-  def blink(stones, times) when is_list(stones) do
+  def blink(stones, times) when is_list(stones) and is_integer(times) do
     result = Enum.flat_map(stones, fn stone -> blink(stone) end)
     blink(result, times - 1)
   end

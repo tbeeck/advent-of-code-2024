@@ -576,7 +576,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day11.part1()
         |> print_out(test_name)
 
-      assert output == 0
+      assert output == 185205
     end
 
     test "part 2 example", %{test: test_name} do
