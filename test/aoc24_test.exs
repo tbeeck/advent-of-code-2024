@@ -579,6 +579,19 @@ defmodule Aoc24Test do
       assert output == 185_205
     end
 
+    test "original example with memo" do
+      {:ok, contents} = File.read("./test/support/day11/example.txt")
+
+      stones = Aoc24.Day11.process_input(contents)
+
+      output = stones
+      |> Enum.map_reduce(Map.new(), fn stone, memo -> Aoc24.Day11.blink_count(stone, 25, memo) end)
+      |> elem(0)
+      |> Enum.sum()
+
+      assert output == 55312
+    end
+
     @tag timeout: :infinity
     test "part 2 input", %{test: test_name} do
       {:ok, contents} = File.read("./test/support/day11/input.txt")

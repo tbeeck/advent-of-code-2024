@@ -7,14 +7,6 @@ defmodule Aoc24.Day11 do
     |> length()
   end
 
-  def part2(input) do
-    stones =
-      process_input(input)
-
-    Enum.reduce(1..75, stones, fn _, acc -> blink(acc, 1) end)
-    |> length()
-  end
-
   def blink(stones, 0) when is_list(stones), do: stones
 
   def blink(stones, times) when is_list(stones) and is_integer(times) do
@@ -22,6 +14,7 @@ defmodule Aoc24.Day11 do
     blink(result, times - 1)
   end
 
+  @spec blink(integer()) :: list()
   def blink(stone) when is_integer(stone) do
     if stone == 0 do
       [1]
@@ -31,6 +24,47 @@ defmodule Aoc24.Day11 do
       else
         [stone * 2024]
       end
+    end
+  end
+
+  def part2(input) do
+    stones =
+      process_input(input)
+
+    stones
+      |> Enum.map_reduce(Map.new(), fn stone, memo -> blink_count(stone, 75, memo) end)
+      |> Enum.sum()
+  end
+
+  @spec blink_count(integer(), integer(), map()) :: {integer(), map()}
+  def blink_count(_, 0, memo) do
+    {1, memo}
+  end
+
+  @spec blink_count(integer(), integer(), map()) :: {integer(), map()}
+  def blink_count(stone, 1, memo) do
+    if stone == 0 do
+      {1, Map.put(memo, {stone, 1}, 1)}
+    else
+      if even_digits?(stone) do
+        {2, Map.put(memo, {stone, 1}, 2)}
+      else
+        {1, Map.put(memo, {stone, 1}, 1)}
+      end
+    end
+  end
+
+  @spec blink_count(integer(), integer(), map()) :: {integer(), map()}
+  def blink_count(stone, times, memo) do
+    if {stone, times} in memo do
+      {Map.get(memo, {stone, times}), memo}
+    else
+      {total, memo} = blink(stone)
+      |> Enum.reduce({0, memo}, fn new_stone, {acc_count, acc_memo} ->
+        {count, acc_memo} = blink_count(new_stone, times-1, acc_memo)
+        {acc_count + count, acc_memo}
+      end)
+      {total , Map.put(memo, {stone, times}, total)}
     end
   end
 
