@@ -583,10 +583,10 @@ defmodule Aoc24Test do
       {:ok, contents} = File.read("./test/support/day11/example.txt")
 
       stones = Aoc24.Day11.process_input(contents)
-
+      Aoc24.Day11.EtsCache.start_link()
       output = stones
-      |> Enum.map_reduce(Map.new(), fn stone, memo -> Aoc24.Day11.blink_count(stone, 25, memo) end)
-      |> elem(0)
+      |> Enum.map(fn stone -> Aoc24.Day11.EtsCache.get_count({stone, 25}) end)
+      |> IO.inspect()
       |> Enum.sum()
 
       assert output == 55312
