@@ -8,26 +8,35 @@ defmodule Aoc24.Day12 do
       process_input(input)
       |> make_regions()
 
-    cost(grid)
+    cost(grid, &region_cost_p1/2)
   end
 
   def part2(input) do
-    0
+    grid =
+      process_input(input)
+      |> make_regions()
+      |> IO.inspect()
+
+    cost(grid, &region_cost_p2/2)
   end
 
-  def cost(grid) do
+  def cost(grid, region_cost_func) do
     grid.regions
-    |> Enum.map(fn {_, region} -> region_cost(grid, region) end)
+    |> Enum.map(fn {_, region} -> region_cost_func.(grid, region) end)
     |> Enum.sum()
   end
 
-  def region_cost(grid, region) do
+  def region_cost_p1(grid, region) do
     perimeter =
       region
       |> Enum.map(fn pair -> edges(grid, pair) end)
       |> Enum.sum()
 
     length(region) * perimeter
+  end
+
+  def region_cost_p2(grid, region) do
+    length(region) * sides(grid, region)
   end
 
   def make_regions(grid) do
@@ -74,6 +83,48 @@ defmodule Aoc24.Day12 do
       !in_bounds?(grid, {a, b}) or elem(elem(grid.grid, i), j) != elem(elem(grid.grid, a), b)
     end)
     |> length()
+  end
+
+  def sides(grid, region) do
+    region
+    |> IO.inspect()
+    |> Enum.map(fn pair -> corners(grid, pair) end)
+    |> IO.inspect()
+    |> Enum.sum()
+  end
+
+  def corners(grid, {i, j}) do
+    val = val_at(grid, {i, j})
+
+    outer_corners =
+      [
+        [{i - 1, j}, {i, j - 1}],
+        [{i - 1, j}, {i, j + 1}],
+        [{i + 1, j}, {i, j + 1}],
+        [{i + 1, j}, {i, j - 1}]
+      ]
+      |> Enum.count(fn [p1, p2] ->
+        (not in_bounds?(grid, p1) or val_at(grid, p1) != val) and
+          (not in_bounds?(grid, p2) or val_at(grid, p2) != val)
+      end)
+
+    inner_corners =
+      [
+        [{i - 1, j - 1}, [{i, j - 1}, {i - 1, j}]],
+        [{i - 1, j + 1}, [{i - 1, j}, {i, j + 1}]],
+        [{i + 1, j - 1}, [{i, j - 1}, {i + 1, j}]],
+        [{i + 1, j + 1}, [{i + 1, j}, {i, j + 1}]]
+      ]
+      |> Enum.filter(fn [pair | _] -> in_bounds?(grid, pair) and val_at(grid, pair) != val end)
+      |> Enum.count(fn [_, matchers] ->
+        Enum.all?(matchers, fn pair -> val_at(grid, pair) == val end)
+      end)
+
+    outer_corners + inner_corners
+  end
+
+  def val_at(grid, {a, b}) do
+    elem(elem(grid.grid, a), b)
   end
 
   def in_bounds?(grid, {a, b}) do
