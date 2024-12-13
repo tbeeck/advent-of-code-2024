@@ -15,7 +15,6 @@ defmodule Aoc24.Day12 do
     grid =
       process_input(input)
       |> make_regions()
-      |> IO.inspect()
 
     cost(grid, &region_cost_p2/2)
   end
@@ -87,9 +86,7 @@ defmodule Aoc24.Day12 do
 
   def sides(grid, region) do
     region
-    |> IO.inspect()
     |> Enum.map(fn pair -> corners(grid, pair) end)
-    |> IO.inspect()
     |> Enum.sum()
   end
 
