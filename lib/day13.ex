@@ -9,8 +9,17 @@ defmodule Aoc24.Day13 do
     |> Enum.sum()
   end
 
-  def part2(_) do
-    0
+  def part2(input) do
+    offset = 10_000_000_000_000
+
+    process_input(input)
+    |> Enum.map(fn question ->
+      %Question{
+        question
+        | target: add_tuples(question.target, {offset, offset})
+      }
+    end)
+    |> IO.inspect()
   end
 
   def search(question) do
