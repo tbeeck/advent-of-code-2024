@@ -670,6 +670,26 @@ defmodule Aoc24Test do
       assert output == 29517
     end
 
+    test "part 2 backtest", %{test: test_name} do
+      {:ok, contents} = File.read("./test/support/day13/example.txt")
+
+      output =
+        contents
+        |> Aoc24.Day13.part1_optimized()
+        |> print_out(test_name)
+
+      assert output == 480
+
+      {:ok, contents} = File.read("./test/support/day13/input.txt")
+
+      output =
+        contents
+        |> Aoc24.Day13.part1_optimized()
+        |> print_out(test_name)
+
+      assert output == 29517
+    end
+
     test "part 2 example", %{test: test_name} do
       {:ok, contents} = File.read("./test/support/day13/example.txt")
 
@@ -678,7 +698,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day13.part2()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 875_318_608_908
     end
 
     test "part 2 input", %{test: test_name} do
@@ -689,7 +709,7 @@ defmodule Aoc24Test do
         |> Aoc24.Day13.part2()
         |> print_out(test_name)
 
-      assert output == nil
+      assert output == 103_570_327_981_381
     end
   end
 
