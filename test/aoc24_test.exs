@@ -125,46 +125,22 @@ defmodule Aoc24Test do
 
   describe "Day 3" do
     test "day 3 part 1 example", %{test: test_name} do
-      input = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
-
-      output =
-        input
-        |> Aoc24.Day3.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day3/example.txt", &Aoc24.Day3.part1/1)
       assert output == 161
     end
 
     test "day 3 part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day3/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day3.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day3/input.txt", &Aoc24.Day3.part1/1)
       assert output == 180_233_229
     end
 
     test "day 3 part 2 example", %{test: test_name} do
-      input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
-
-      output =
-        input
-        |> Aoc24.Day3.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day3/example.txt", &Aoc24.Day3.part2/1)
       assert output == 48
     end
 
     test "day 3 part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day3/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day3.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day3/input.txt", &Aoc24.Day3.part2/1)
       assert output == 95_411_583
     end
 
@@ -175,59 +151,29 @@ defmodule Aoc24Test do
 
   describe "Day 4" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day4/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day4.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day4/example.txt", &Aoc24.Day4.part1/1)
       assert output == 18
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day4/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day4.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day4/input.txt", &Aoc24.Day4.part1/1)
       assert output == 2644
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day4/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day4.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day4/example.txt", &Aoc24.Day4.part2/1)
       assert output == 9
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day4/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day4.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day4/input.txt", &Aoc24.Day4.part2/1)
       assert output == 1952
     end
   end
 
   describe "Day 5" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day5/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day5.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day5/example.txt", &Aoc24.Day5.part1/1)
       assert output == 143
     end
 
@@ -239,166 +185,83 @@ defmodule Aoc24Test do
         |> Aoc24.Day5.part1()
         |> print_out(test_name)
 
+      output = do_test(test_name, "day5/input.txt", &Aoc24.Day5.part1/1)
       assert output == 6267
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day5/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day5.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day5/example.txt", &Aoc24.Day5.part2/1)
       assert output == 123
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day5/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day5.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day5/input.txt", &Aoc24.Day5.part2/1)
       assert output == 5184
     end
   end
 
   describe "Day 6" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day6/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day6.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day6/example.txt", &Aoc24.Day6.part1/1)
       assert output == 41
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day6/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day6.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day6/input.txt", &Aoc24.Day6.part1/1)
       assert output == 5516
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day6/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day6.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day6/example.txt", &Aoc24.Day6.part2/1)
       assert output == 6
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day6/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day6.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day6/input.txt", &Aoc24.Day6.part2/1)
       assert output == 2008
     end
   end
 
   describe "Day 7" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day7/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day7.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day7/example.txt", &Aoc24.Day7.part1/1)
       assert output == 3749
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day7/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day7.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day7/input.txt", &Aoc24.Day7.part1/1)
       assert output == 2_314_935_962_622
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day7/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day7.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day7/example.txt", &Aoc24.Day7.part2/1)
       assert output == 11387
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day7/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day7.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day7/input.txt", &Aoc24.Day7.part2/1)
       assert output == 401_477_450_831_495
     end
   end
 
   describe "Day 8" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day8/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day8.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day8/example.txt", &Aoc24.Day8.part1/1)
       assert output == 14
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day8/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day8.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day8/input.txt", &Aoc24.Day8.part1/1)
       assert output == 228
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day8/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day8.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day8/example.txt", &Aoc24.Day8.part2/1)
       assert output == 34
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day8/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day8.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day8/input.txt", &Aoc24.Day8.part2/1)
       assert output == 766
     end
 
