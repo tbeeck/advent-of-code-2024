@@ -649,72 +649,48 @@ defmodule Aoc24Test do
 
   describe "Day 13" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day13/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day13.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day13/example.txt", &Aoc24.Day13.part1/1)
       assert output == 480
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day13/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day13.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day13/input.txt", &Aoc24.Day13.part1/1)
       assert output == 29517
     end
 
     test "part 2 backtest", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day13/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day13.part1_optimized()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day13/example.txt", &Aoc24.Day13.part1_optimized/1)
       assert output == 480
 
-      {:ok, contents} = File.read("./test/support/day13/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day13.part1_optimized()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day13/input.txt", &Aoc24.Day13.part1_optimized/1)
       assert output == 29517
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day13/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day13.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day13/example.txt", &Aoc24.Day13.part2/1)
       assert output == 875_318_608_908
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day13/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day13.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day13/input.txt", &Aoc24.Day13.part2/1)
       assert output == 103_570_327_981_381
     end
   end
 
-  defp print_out(output, test) do
-    IO.puts("#{Atom.to_string(test)}:\t#{Integer.to_string(output)}")
-    output
+  defp do_test(test, input_path, func) do
+    {:ok, contents} = File.read(Path.join(["./test", "support", input_path]))
+    {time, value} = :timer.tc(fn -> func.(contents) end)
+    print_result(test, value, time)
+    value
+  end
+
+  defp print_result(test, value, time) do
+    time_format = :erlang.float_to_binary(time / 1_000_000, decimals: 3)
+    IO.puts("#{time_format}s\t#{Atom.to_string(test)}:\t\t#{Integer.to_string(value)}")
+    value
+  end
+
+  defp print_out(value, _) do
+    value
   end
 end
