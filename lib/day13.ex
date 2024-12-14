@@ -5,17 +5,43 @@ defmodule Aoc24.Day13 do
 
   def part1(input) do
     process_input(input)
+    |> Enum.map(&search/1)
+    |> Enum.sum()
+  end
+
+  def part2(_) do
     0
   end
 
-  def part2(input) do
-    0
+  def search(question) do
+    answers =
+      for a <- 0..100, b <- 0..100 do
+        {a, b}
+      end
+      |> Enum.filter(fn {a, b} ->
+        end_state = add_tuples(n_steps(a, question.a_deltas), n_steps(b, question.b_deltas))
+        end_state == question.target
+      end)
+      |> Enum.map(fn {a, b} -> a * 3 + b end)
+
+    if length(answers) < 1 do
+      0
+    else
+      Enum.min(answers)
+    end
+  end
+
+  def n_steps(n, {x_step, y_step}) do
+    {x_step * n, y_step * n}
+  end
+
+  def add_tuples({a, b}, {c, d}) do
+    {a + c, b + d}
   end
 
   def process_input(input) do
     pattern =
       ~r"Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)"
-      |> IO.inspect()
 
     input
     |> String.split("\n\n")
