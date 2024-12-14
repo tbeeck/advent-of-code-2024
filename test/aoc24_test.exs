@@ -4,92 +4,44 @@ defmodule Aoc24Test do
 
   describe "Day 1" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day1.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day1/example.txt", &Aoc24.Day1.part1/1)
       assert output == 11
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day1.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day1/input.txt", &Aoc24.Day1.part1/1)
       assert output == 1_834_060
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day1.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day1/example.txt", &Aoc24.Day1.part2/1)
       assert output == 31
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day1/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day1.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day1/input.txt", &Aoc24.Day1.part2/1)
       assert output == 21_607_792
     end
   end
 
   describe "Day 2" do
     test "part 1 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day2.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day2/example.txt", &Aoc24.Day2.part1/1)
       assert output == 2
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day2.part1()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day2/input.txt", &Aoc24.Day2.part1/1)
       assert output == 224
     end
 
     test "part 2 example", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/example.txt")
-
-      output =
-        contents
-        |> Aoc24.Day2.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day2/example.txt", &Aoc24.Day2.part2/1)
       assert output == 4
     end
 
     test "part 2 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day2/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day2.part2()
-        |> print_out(test_name)
-
+      output = do_test(test_name, "day2/input.txt", &Aoc24.Day2.part2/1)
       assert output == 293
     end
 
@@ -178,13 +130,6 @@ defmodule Aoc24Test do
     end
 
     test "part 1 input", %{test: test_name} do
-      {:ok, contents} = File.read("./test/support/day5/input.txt")
-
-      output =
-        contents
-        |> Aoc24.Day5.part1()
-        |> print_out(test_name)
-
       output = do_test(test_name, "day5/input.txt", &Aoc24.Day5.part1/1)
       assert output == 6267
     end
@@ -459,10 +404,6 @@ defmodule Aoc24Test do
   defp print_result(test, value, time) do
     time_format = :erlang.float_to_binary(time / 1_000_000, decimals: 3)
     IO.puts("#{time_format}s\t#{Atom.to_string(test)}:\t\t#{Integer.to_string(value)}")
-    value
-  end
-
-  defp print_out(value, _) do
     value
   end
 end
