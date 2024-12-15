@@ -14,8 +14,12 @@ defmodule Aoc24.Day14 do
     |> Enum.reduce(1, fn n, acc -> n * acc end)
   end
 
-  def part2(input) do
-    0
+  def part2(input, opts \\ []) do
+    width = Keyword.get(opts, :width, 101)
+    height = Keyword.get(opts, :height, 103)
+
+    process_input(input)
+    |> sim_till_tree(width, height)
   end
 
   def sim(robot, width, height) do
@@ -28,6 +32,102 @@ defmodule Aoc24.Day14 do
         | position: wrap({x + dx, y + dy}, width, height)
       }
     end)
+  end
+
+  def sim_till_tree(robots, width, height, depth \\ 0) do
+    tree = check_tree(robots, width, height, depth)
+    if Integer.mod(depth, 1_000) == 0 do
+      IO.puts("At depth #{depth}")
+    end
+    if not tree do
+      Enum.map(robots, fn r -> sim(r, width, height) end)
+      |> sim_till_tree(width, height, depth + 1)
+    else
+      depth
+    end
+  end
+
+  def check_tree(robots, width, height, depth) do
+    counts =
+      Enum.reduce(robots, Map.new(), fn robot, acc ->
+        Map.put(acc, robot.position, 1 + Map.get(acc, robot.position, 0))
+      end)
+
+    {result, _} =
+      Enum.reduce(counts, {false, MapSet.new()}, fn {{x, y}, _}, {result, visited} ->
+        if not result do
+          {group, visited} = group_dfs(counts, {x, y}, visited, width, height)
+
+          if group >= 500 do
+            print_robots(robots, width, height)
+            {true, visited}
+          else
+            if group >= 100 do
+              IO.puts("big group at depth #{depth}: #{group}")
+              print_robots(robots, width, height)
+            end
+
+            {result, visited}
+          end
+        else
+          {result, visited}
+        end
+      end)
+
+    result
+  end
+
+  def group_dfs(counts, {x, y}, visited, width, height) do
+    if MapSet.member?(visited, {x, y}) or not Map.has_key?(counts, {x, y}) do
+      {0, visited}
+    else
+      visited = MapSet.put(visited, {x, y})
+
+      neighbors =
+        [
+          {x - 1, y},
+          {x, y - 1},
+          {x + 1, y},
+          {x, y + 1},
+          {x - 1, y - 1},
+          {x + 1, y + 1},
+          {x - 1, y + 1},
+          {x + 1, y - 1}
+        ]
+        |> Enum.filter(fn {a, b} -> Map.has_key?(counts, {a, b}) end)
+
+      {group, visited} =
+        Enum.reduce(neighbors, {0, visited}, fn neighbor, {acc, visited_acc} ->
+          {g, v} = group_dfs(counts, neighbor, visited_acc, width, height)
+          {g + acc, v}
+        end)
+
+      {Map.fetch!(counts, {x, y}) + group, visited}
+    end
+  end
+
+  def print_robots(robots, width, height) do
+    counts =
+      Enum.reduce(robots, Map.new(), fn robot, acc ->
+        Map.put(acc, robot.position, 1 + Map.get(acc, robot.position, 0))
+      end)
+
+    grid =
+      for y <- 0..height do
+        Enum.reduce((width - 1)..0//-1, [], fn x, acc ->
+          if Map.has_key?(counts, {x, y}) do
+            [Integer.to_string(Map.get(counts, {x, y}, "0"))] ++ acc
+          else
+            [" "] ++ acc
+          end
+        end)
+      end
+
+    Enum.map(grid, fn row ->
+      IO.puts(Enum.join(row))
+    end)
+
+    robots
   end
 
   def wrap({x, y}, width, height) do
