@@ -7,8 +7,6 @@ defmodule Aoc24.Day15 do
     {state, directions, dimensions} =
       process_input(input)
 
-      draw_grid(state, dimensions)
-
     end_state =
       Enum.reduce(directions, state, fn direction, state_acc ->
         if can_move?(state_acc, state_acc.position, direction) do
@@ -20,8 +18,7 @@ defmodule Aoc24.Day15 do
 
     Enum.map(end_state.grid, fn {{x, y}, val} ->
       if val == :box do
-        (100 * y + x)
-        |> IO.inspect()
+        100 * y + x
       else
         0
       end
@@ -32,7 +29,6 @@ defmodule Aoc24.Day15 do
   def do_robot_move(state, direction, dimensions) do
     state =
       do_move(state, state.position, direction)
-      |> draw_grid(dimensions)
 
     new_pos = new_position(state.position, direction)
 
@@ -64,6 +60,7 @@ defmodule Aoc24.Day15 do
   def can_move?(state, position, direction) do
     new_pos = new_position(position, direction)
     new_val = Map.get(state.grid, new_pos, :free)
+
     case new_val do
       :edge -> true
       :free -> true
@@ -126,7 +123,9 @@ defmodule Aoc24.Day15 do
       |> length()
 
     directions =
-      String.graphemes(directions)
+      String.split(directions)
+      |> Enum.join()
+      |> String.graphemes()
       |> Enum.map(fn char ->
         case char do
           "^" -> :up
