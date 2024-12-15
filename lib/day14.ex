@@ -39,10 +39,6 @@ defmodule Aoc24.Day14 do
   def sim_till_tree(robots, width, height, depth \\ 0) do
     tree = check_tree(robots, width, height)
 
-    if Integer.mod(depth, 1_000) == 0 do
-      IO.puts("At depth #{depth}")
-    end
-
     if not tree do
       Enum.map(robots, fn r -> move_robot(r, width, height) end)
       |> sim_till_tree(width, height, depth + 1)
