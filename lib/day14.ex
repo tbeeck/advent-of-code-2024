@@ -23,31 +23,35 @@ defmodule Aoc24.Day14 do
   end
 
   def sim(robot, width, height) do
-    Enum.reduce(1..100, robot, fn _, r ->
-      {x, y} = r.position
-      {dx, dy} = r.velocity
+    Enum.reduce(1..100, robot, fn _, r -> move_robot(r, width, height) end)
+  end
 
-      %Robot{
-        robot
-        | position: wrap({x + dx, y + dy}, width, height)
-      }
-    end)
+  def move_robot(r, width, height) do
+    {x, y} = r.position
+    {dx, dy} = r.velocity
+
+    %Robot{
+      r
+      | position: wrap({x + dx, y + dy}, width, height)
+    }
   end
 
   def sim_till_tree(robots, width, height, depth \\ 0) do
-    tree = check_tree(robots, width, height, depth)
+    tree = check_tree(robots, width, height)
+
     if Integer.mod(depth, 1_000) == 0 do
       IO.puts("At depth #{depth}")
     end
+
     if not tree do
-      Enum.map(robots, fn r -> sim(r, width, height) end)
+      Enum.map(robots, fn r -> move_robot(r, width, height) end)
       |> sim_till_tree(width, height, depth + 1)
     else
       depth
     end
   end
 
-  def check_tree(robots, width, height, depth) do
+  def check_tree(robots, width, height) do
     counts =
       Enum.reduce(robots, Map.new(), fn robot, acc ->
         Map.put(acc, robot.position, 1 + Map.get(acc, robot.position, 0))
@@ -58,16 +62,10 @@ defmodule Aoc24.Day14 do
         if not result do
           {group, visited} = group_dfs(counts, {x, y}, visited, width, height)
 
-          if group >= 500 do
-            print_robots(robots, width, height)
+          if group >= 200 do
             {true, visited}
           else
-            if group >= 100 do
-              IO.puts("big group at depth #{depth}: #{group}")
-              print_robots(robots, width, height)
-            end
-
-            {result, visited}
+            {false, visited}
           end
         else
           {result, visited}
