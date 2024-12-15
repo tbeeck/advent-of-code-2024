@@ -395,14 +395,24 @@ defmodule Aoc24Test do
   end
 
   describe "Day 14" do
+    test "wrap" do
+      assert Aoc24.Day14.wrap({0, 0}, 11, 7) == {0, 0}
+      assert Aoc24.Day14.wrap({-1, 0}, 11, 7) == {10, 0}
+      assert Aoc24.Day14.wrap({-2, 0}, 11, 7) == {9, 0}
+      assert Aoc24.Day14.wrap({-2, -2}, 11, 7) == {9, 5}
+      assert Aoc24.Day14.wrap({11, 7}, 11, 7) == {0, 0}
+      assert Aoc24.Day14.wrap({11, 7}, 11, 7) == {0, 0}
+      assert Aoc24.Day14.wrap({10 + 2, 6 - 3}, 11, 7) == {1, 3}
+    end
+
     test "part 1 example", %{test: test_name} do
-      output = do_test(test_name, "day14/example.txt", &Aoc24.Day14.part1/1)
+      output = do_test(test_name, "day14/example.txt", &Aoc24.Day14.part1/2, width: 11, height: 7)
       assert output == 12
     end
 
     test "part 1 input", %{test: test_name} do
       output = do_test(test_name, "day14/input.txt", &Aoc24.Day14.part1/1)
-      assert output == 0
+      assert output == 220971520
     end
 
     test "part 2 example", %{test: test_name} do
@@ -416,9 +426,16 @@ defmodule Aoc24Test do
     end
   end
 
-  defp do_test(test, input_path, func) do
+  defp do_test(test, input_path, func, opts \\ []) do
     {:ok, contents} = File.read(Path.join(["./test", "support", input_path]))
-    {time, value} = :timer.tc(fn -> func.(contents) end)
+
+    f =
+      case length(opts) do
+        0 -> fn -> func.(contents) end
+        _ -> fn -> func.(contents, opts) end
+      end
+
+    {time, value} = :timer.tc(f)
     print_result(test, value, time)
     value
   end
