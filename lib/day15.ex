@@ -7,6 +7,8 @@ defmodule Aoc24.Day15 do
     {state, directions, dimensions} =
       process_input(input)
 
+      draw_grid(state, dimensions)
+
     end_state =
       Enum.reduce(directions, state, fn direction, state_acc ->
         if can_move?(state_acc, state_acc.position, direction) do
@@ -61,8 +63,8 @@ defmodule Aoc24.Day15 do
 
   def can_move?(state, position, direction) do
     new_pos = new_position(position, direction)
-
-    case Map.get(state, new_pos, :free) do
+    new_val = Map.get(state.grid, new_pos, :free)
+    case new_val do
       :edge -> true
       :free -> true
       :box -> can_move?(state, new_pos, direction)
