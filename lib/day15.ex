@@ -4,13 +4,13 @@ defmodule Aoc24.Day15 do
   end
 
   def part1(input) do
-    {state, directions, dimensions} =
-      process_input(input)
+    {state, directions, _} =
+      process_input(input, &parse_grid_p1/1)
 
     end_state =
       Enum.reduce(directions, state, fn direction, state_acc ->
         if can_move?(state_acc, state_acc.position, direction) do
-          do_robot_move(state_acc, direction, dimensions)
+          do_robot_move(state_acc, direction)
         else
           state_acc
         end
@@ -26,7 +26,13 @@ defmodule Aoc24.Day15 do
     |> Enum.sum()
   end
 
-  def do_robot_move(state, direction, dimensions) do
+  def part2(input) do
+    {state, directions, dimensions} = process_input(input, &parse_grid_p2/1)
+    draw_grid(state, dimensions)
+    0
+  end
+
+  def do_robot_move(state, direction) do
     state =
       do_move(state, state.position, direction)
 
@@ -81,10 +87,6 @@ defmodule Aoc24.Day15 do
     {x + dx, y + dy}
   end
 
-  def part2(input) do
-    0
-  end
-
   def find_robot(grid) do
     elem(
       Enum.find(grid, fn {_, val} ->
@@ -94,53 +96,87 @@ defmodule Aoc24.Day15 do
     )
   end
 
-  def process_input(input) do
-    [grid, directions] = String.split(input, "\n\n")
-
-    parsed_grid =
-      String.split(grid)
-      |> Enum.with_index()
-      |> Enum.reduce(Map.new(), fn {row, y}, acc ->
-        Enum.with_index(String.graphemes(row))
-        |> Enum.reduce(acc, fn {char, x}, inner_acc ->
-          case char do
-            "#" -> Map.put(inner_acc, {x, y}, :wall)
-            "O" -> Map.put(inner_acc, {x, y}, :box)
-            "@" -> Map.put(inner_acc, {x, y}, :robot)
-            _ -> inner_acc
-          end
-        end)
-      end)
-
-    height =
-      String.split(grid)
-      |> length()
-
-    width =
-      String.split(grid)
-      |> Enum.at(0)
-      |> String.graphemes()
-      |> length()
-
-    directions =
-      String.split(directions)
-      |> Enum.join()
-      |> String.graphemes()
-      |> Enum.map(fn char ->
-        case char do
-          "^" -> :up
-          "v" -> :down
-          "<" -> :left
-          ">" -> :right
-        end
-      end)
+  def process_input(input, grid_parser) do
+    parsed_grid = grid_parser.(input)
+    directions = parse_directions(input)
 
     state = %State{
       grid: parsed_grid,
       position: find_robot(parsed_grid)
     }
 
+    {width, height} = dimensions(parsed_grid)
     {state, directions, {width, height}}
+  end
+
+  def parse_grid_p1(input) do
+    [grid | _] = String.split(input, "\n\n")
+
+    String.split(grid)
+    |> Enum.with_index()
+    |> Enum.reduce(Map.new(), fn {row, y}, acc ->
+      Enum.with_index(String.graphemes(row))
+      |> Enum.reduce(acc, fn {char, x}, inner_acc ->
+        case char do
+          "#" -> Map.put(inner_acc, {x, y}, :wall)
+          "O" -> Map.put(inner_acc, {x, y}, :box)
+          "@" -> Map.put(inner_acc, {x, y}, :robot)
+          _ -> inner_acc
+        end
+      end)
+    end)
+  end
+
+  def parse_grid_p2(input) do
+    [grid | _] = String.split(input, "\n\n")
+
+    String.split(grid)
+    |> Enum.with_index()
+    |> Enum.reduce(Map.new(), fn {row, y}, acc ->
+      IO.inspect(row)
+
+      String.graphemes(row)
+      |> Enum.reduce([], fn char, inner_acc ->
+        case char do
+          "#" -> [:wall, :wall] ++ inner_acc
+          # will get reversed
+          "O" -> [:box_r, :box_l] ++ inner_acc
+          "@" -> [:robot] ++ inner_acc
+          "." -> [:free, :free] ++ inner_acc
+        end
+      end)
+      |> Enum.reverse()
+      |> Enum.with_index()
+      |> Enum.reduce(acc, fn {char, x}, inner_acc ->
+        if char != :free do
+          Map.put(inner_acc, {x, y}, char)
+        else
+          inner_acc
+        end
+      end)
+    end)
+  end
+
+  def parse_directions(input) do
+    [_, directions] = String.split(input, "\n\n")
+
+    String.split(directions)
+    |> Enum.join()
+    |> String.graphemes()
+    |> Enum.map(fn char ->
+      case char do
+        "^" -> :up
+        "v" -> :down
+        "<" -> :left
+        ">" -> :right
+      end
+    end)
+  end
+
+  def dimensions(grid) do
+    Enum.reduce(grid, {0, 0}, fn {{x, y}, _}, {max_x, max_y} ->
+      {max(x, max_x), max(y, max_y)}
+    end)
   end
 
   def draw_grid(state, {width, height}) do
@@ -151,6 +187,8 @@ defmodule Aoc24.Day15 do
             :wall -> "#"
             :robot -> "@"
             :box -> "O"
+            :box_l -> "["
+            :box_r -> "]"
             nil -> "."
           end
 
@@ -158,7 +196,7 @@ defmodule Aoc24.Day15 do
       end)
       |> Enum.reverse()
     end
-    |> IO.inspect()
+    |> IO.inspect(limit: :infinity)
 
     state
   end
