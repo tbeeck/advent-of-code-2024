@@ -29,6 +29,7 @@ defmodule Aoc24.Day15 do
   def part2(input) do
     {state, directions, dimensions} = process_input(input, &parse_grid_p2/1)
     draw_grid(state, dimensions)
+    IO.inspect(dimensions)
     0
   end
 
@@ -147,9 +148,12 @@ defmodule Aoc24.Day15 do
       end)
       |> Enum.reverse()
       |> Enum.with_index()
-      |> Enum.reduce(acc, fn {char, x}, inner_acc ->
-        if char != :free do
-          Map.put(inner_acc, {x, y}, char)
+      |> IO.inspect()
+      |> Enum.reduce(acc, fn {val, x}, inner_acc ->
+        IO.inspect({x, y, val})
+
+        if val != :free do
+          Map.put(inner_acc, {x, y}, val)
         else
           inner_acc
         end
@@ -175,7 +179,7 @@ defmodule Aoc24.Day15 do
 
   def dimensions(grid) do
     Enum.reduce(grid, {0, 0}, fn {{x, y}, _}, {max_x, max_y} ->
-      {max(x, max_x), max(y, max_y)}
+      {max(x+1, max_x), max(y+1, max_y)}
     end)
   end
 
