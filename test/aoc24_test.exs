@@ -449,7 +449,24 @@ defmodule Aoc24Test do
 
     test "part 2 input", %{test: test_name} do
       output = do_test(test_name, "day15/input.txt", &Aoc24.Day15.part2/1)
-      assert output == 1528453
+      assert output == 1_528_453
+    end
+  end
+
+  describe "Day 16" do
+    test "part 1 example", %{test: test_name} do
+      output = do_test(test_name, "day16/example.txt", &Aoc24.Day16.part1/1)
+      assert output == 7036
+    end
+
+    test "part 1 example 2", %{test: test_name} do
+      output = do_test(test_name, "day16/example_2.txt", &Aoc24.Day16.part1/1)
+      assert output == 11048
+    end
+
+    test "part 1 input", %{test: test_name} do
+      output = do_test(test_name, "day16/input.txt", &Aoc24.Day16.part1/1)
+      assert output == nil
     end
   end
 
