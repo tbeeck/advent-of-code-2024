@@ -16,29 +16,33 @@ defmodule Aoc24.Day15 do
         end
       end)
 
-    Enum.map(end_state.grid, fn {{x, y}, val} ->
-      if val == :box do
+    score(end_state)
+  end
+
+  def part2(input) do
+    {state, directions, dimensions} = process_input(input, &parse_grid_p2/1)
+
+    end_state =
+      Enum.reduce(directions, state, fn direction, state_acc ->
+        if can_move?(state_acc, state_acc.position, direction) do
+          do_robot_move(state_acc, direction)
+        else
+          state_acc
+        end
+      end)
+
+    score(end_state)
+  end
+
+  def score(state) do
+    Enum.map(state.grid, fn {{x, y}, val} ->
+      if val in [:box, :box_l] do
         100 * y + x
       else
         0
       end
     end)
     |> Enum.sum()
-  end
-
-  def part2(input) do
-    {state, directions, dimensions} = process_input(input, &parse_grid_p2/1)
-
-    draw_grid(state, dimensions)
-
-    Enum.reduce(directions, state, fn direction, state_acc ->
-      if can_move?(state_acc, state_acc.position, direction) do
-        do_robot_move(state_acc, direction)
-        |> draw_grid(dimensions)
-      end
-    end)
-
-    0
   end
 
   def do_robot_move(state, direction) do
@@ -60,20 +64,43 @@ defmodule Aoc24.Day15 do
       state
     else
       new_pos = new_position(position, direction)
-      state = do_move(state, new_pos, direction)
+
+      state =
+        if direction in [:up, :down] and cur_val in [:box_l, :box_r] do
+          case cur_val do
+            :box_l ->
+              do_move(state, new_position(new_pos, :right), direction)
+              |> do_move(new_pos, direction)
+
+            :box_r ->
+              do_move(state, new_position(new_pos, :left), direction)
+              |> do_move(new_pos, direction)
+          end
+        else
+          do_move(state, new_pos, direction)
+        end
 
       val = Map.get(state.grid, position)
 
-      if cur_val in [:box_l, :box_r] and direction in [:up, :down] do
-        case cur_val do
-          :box_l -> 0
-          :box_r -> 0
-        end
-      end
-
       new_grid =
-        Map.delete(state.grid, position)
-        |> Map.put(new_pos, val)
+        if direction in [:up, :down] and cur_val in [:box_l, :box_r] do
+          case cur_val do
+            :box_l ->
+              Map.delete(state.grid, position)
+              |> Map.delete(new_position(position, :right))
+              |> Map.put(new_pos, val)
+              |> Map.put(new_position(new_pos, :right), :box_r)
+
+            :box_r ->
+              Map.delete(state.grid, position)
+              |> Map.delete(new_position(position, :left))
+              |> Map.put(new_pos, val)
+              |> Map.put(new_position(new_pos, :left), :box_l)
+          end
+        else
+          Map.delete(state.grid, position)
+          |> Map.put(new_pos, val)
+        end
 
       %State{state | grid: new_grid}
     end
