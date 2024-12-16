@@ -28,8 +28,16 @@ defmodule Aoc24.Day15 do
 
   def part2(input) do
     {state, directions, dimensions} = process_input(input, &parse_grid_p2/1)
+
     draw_grid(state, dimensions)
-    IO.inspect(dimensions)
+
+    Enum.reduce(directions, state, fn direction, state_acc ->
+      if can_move?(state_acc, state_acc.position, direction) do
+        do_robot_move(state_acc, direction)
+        |> draw_grid(dimensions)
+      end
+    end)
+
     0
   end
 
@@ -56,6 +64,13 @@ defmodule Aoc24.Day15 do
 
       val = Map.get(state.grid, position)
 
+      if cur_val in [:box_l, :box_r] and direction in [:up, :down] do
+        case cur_val do
+          :box_l -> 0
+          :box_r -> 0
+        end
+      end
+
       new_grid =
         Map.delete(state.grid, position)
         |> Map.put(new_pos, val)
@@ -69,10 +84,38 @@ defmodule Aoc24.Day15 do
     new_val = Map.get(state.grid, new_pos, :free)
 
     case new_val do
-      :edge -> true
-      :free -> true
-      :box -> can_move?(state, new_pos, direction)
-      _ -> false
+      :free ->
+        true
+
+      :box ->
+        can_move?(state, new_pos, direction)
+
+      :box_l ->
+        if direction == :up or direction == :down do
+          other_pos =
+            new_position(position, direction)
+            |> new_position(:right)
+
+          can_move?(state, new_pos, direction) and
+            can_move?(state, other_pos, direction)
+        else
+          can_move?(state, new_pos, direction)
+        end
+
+      :box_r ->
+        if direction == :up or direction == :down do
+          other_pos =
+            new_position(position, direction)
+            |> new_position(:left)
+
+          can_move?(state, new_pos, direction) and
+            can_move?(state, other_pos, direction)
+        else
+          can_move?(state, new_pos, direction)
+        end
+
+      _ ->
+        false
     end
   end
 
@@ -134,24 +177,19 @@ defmodule Aoc24.Day15 do
     String.split(grid)
     |> Enum.with_index()
     |> Enum.reduce(Map.new(), fn {row, y}, acc ->
-      IO.inspect(row)
-
       String.graphemes(row)
       |> Enum.reduce([], fn char, inner_acc ->
         case char do
           "#" -> [:wall, :wall] ++ inner_acc
           # will get reversed
           "O" -> [:box_r, :box_l] ++ inner_acc
-          "@" -> [:robot] ++ inner_acc
+          "@" -> [:free, :robot] ++ inner_acc
           "." -> [:free, :free] ++ inner_acc
         end
       end)
       |> Enum.reverse()
       |> Enum.with_index()
-      |> IO.inspect()
       |> Enum.reduce(acc, fn {val, x}, inner_acc ->
-        IO.inspect({x, y, val})
-
         if val != :free do
           Map.put(inner_acc, {x, y}, val)
         else
@@ -179,7 +217,7 @@ defmodule Aoc24.Day15 do
 
   def dimensions(grid) do
     Enum.reduce(grid, {0, 0}, fn {{x, y}, _}, {max_x, max_y} ->
-      {max(x+1, max_x), max(y+1, max_y)}
+      {max(x + 1, max_x), max(y + 1, max_y)}
     end)
   end
 
