@@ -13,7 +13,6 @@ defmodule Aoc24.Day16 do
     end_point = find_first(grid, :end)
 
     shortest_path(start_point, end_point)
-    0
   end
 
   def part2(input) do
@@ -33,44 +32,42 @@ defmodule Aoc24.Day16 do
       |> Map.put(real_start, 0)
 
     queue = %{real_start => 0}
+
     dijkstras(distances, queue, end_point)
+    |> Enum.filter(fn {{point, _direction}, _cost} ->
+      point == end_point
+    end)
+    |> Enum.min_by(fn {_k, v} -> v end)
+    |> elem(1)
   end
 
   @spec dijkstras(any(), any(), any()) :: any()
-  def dijkstras(_, queue, _) when map_size(queue) == 0 do
-    :infinity
+  def dijkstras(distances, queue, _) when map_size(queue) == 0 do
+    distances
   end
 
   def dijkstras(distances, queue, target) do
     {{cur_point, cur_direction}, cur_distance} = Enum.min_by(queue, fn {_, dist} -> dist end)
 
-    if cur_point == target do
-      directions()
-      |> Enum.map(fn d -> Map.get(distances, {target, d}, :infinity) end)
-      |> Enum.filter(fn v -> is_integer(v) end)
-      |> Enum.min()
-    else
-      queue = Map.delete(queue, {cur_point, cur_direction})
-      neighbors = :ets.match(:edges, {{{cur_point, cur_direction}, :"$1"}, :"$2"})
-      # Update distances and queue for each neighbor
-      {new_distances, new_queue} =
-        Enum.reduce(neighbors, {distances, queue}, fn [neighbor, weight],
-                                                      {dist_acc, queue_acc} ->
-          alt_distance = cur_distance + weight
+    queue = Map.delete(queue, {cur_point, cur_direction})
+    neighbors = :ets.match(:edges, {{{cur_point, cur_direction}, :"$1"}, :"$2"})
+    # Update distances and queue for each neighbor
+    {new_distances, new_queue} =
+      Enum.reduce(neighbors, {distances, queue}, fn [neighbor, weight], {dist_acc, queue_acc} ->
+        alt_distance = cur_distance + weight
 
-          if alt_distance < Map.get(dist_acc, neighbor, :infinity) do
-            {
-              Map.put(dist_acc, neighbor, alt_distance),
-              Map.put(queue_acc, neighbor, alt_distance)
-            }
-          else
-            {dist_acc, queue_acc}
-          end
-        end)
+        if alt_distance < Map.get(dist_acc, neighbor, :infinity) do
+          {
+            Map.put(dist_acc, neighbor, alt_distance),
+            Map.put(queue_acc, neighbor, alt_distance)
+          }
+        else
+          {dist_acc, queue_acc}
+        end
+      end)
 
-      # Recur with updated distances, queue, and predecessors
-      dijkstras(new_distances, new_queue, target)
-    end
+    # Recur with updated distances, queue, and predecessors
+    dijkstras(new_distances, new_queue, target)
   end
 
   def build_graph(grid) do
