@@ -85,6 +85,7 @@ defmodule Aoc24.Day16 do
     dijkstras(new_distances, new_queue, target)
   end
 
+  # NOTE: Do dijkstras for every point, then for every navigable point, see if start->cur + cur-> end = min distance
   def dfs(cur, target, fuel, path \\ [], visited \\ MapSet.new())
   def dfs(_, _, fuel, _, _) when fuel < 0, do: []
 
