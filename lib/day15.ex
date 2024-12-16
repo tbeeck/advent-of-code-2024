@@ -20,7 +20,7 @@ defmodule Aoc24.Day15 do
   end
 
   def part2(input) do
-    {state, directions, dimensions} = process_input(input, &parse_grid_p2/1)
+    {state, directions, _} = process_input(input, &parse_grid_p2/1)
 
     end_state =
       Enum.reduce(directions, state, fn direction, state_acc ->
