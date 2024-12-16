@@ -17,7 +17,14 @@ defmodule Aoc24.Day16 do
 
   def part2(input) do
     make_caches()
-    0
+
+    grid = process_input(input)
+    build_graph(grid)
+
+    start_point = find_first(grid, :start)
+    end_point = find_first(grid, :end)
+
+    shortest_path(start_point, end_point)
   end
 
   def shortest_path(start_point, end_point) do
@@ -33,12 +40,20 @@ defmodule Aoc24.Day16 do
 
     queue = %{real_start => 0}
 
-    dijkstras(distances, queue, end_point)
-    |> Enum.filter(fn {{point, _direction}, _cost} ->
-      point == end_point
-    end)
-    |> Enum.min_by(fn {_k, v} -> v end)
-    |> elem(1)
+    min_cost =
+      dijkstras(distances, queue, end_point)
+      |> Enum.filter(fn {{point, _direction}, _cost} ->
+        point == end_point
+      end)
+      |> Enum.min_by(fn {_k, v} -> v end)
+      |> elem(1)
+
+    dfs(real_start, end_point, min_cost)
+    |> Enum.flat_map(fn l -> l end)
+    |> IO.inspect()
+    |> Enum.uniq()
+    |> IO.inspect()
+    |> length()
   end
 
   @spec dijkstras(any(), any(), any()) :: any()
@@ -70,6 +85,33 @@ defmodule Aoc24.Day16 do
     dijkstras(new_distances, new_queue, target)
   end
 
+  def dfs(cur, target, fuel, path \\ [], visited \\ MapSet.new())
+  def dfs(_, _, fuel, _, _) when fuel < 0, do: []
+
+  def dfs({cur_pos, _}, target, fuel, path, _) when fuel == 0 do
+    if cur_pos == target do
+      [[cur_pos] ++ path]
+    else
+      []
+    end
+  end
+
+  def dfs(cur, target, fuel, path, visited) do
+    {cur_pos, _} = cur
+
+    if cur in visited do
+      []
+    else
+      visited = MapSet.put(visited, cur)
+      neighbors = :ets.match(:edges, {{cur, :"$1"}, :"$2"})
+
+      Enum.reduce(neighbors, [], fn [neighbor, weight], result_acc ->
+        result = dfs(neighbor, target, fuel - weight, [cur_pos] ++ path, visited)
+        result ++ result_acc
+      end)
+    end
+  end
+
   def build_graph(grid) do
     {width, height} = dimensions(grid)
 
@@ -82,7 +124,7 @@ defmodule Aoc24.Day16 do
 
   def add_edges(grid, src) do
     Enum.with_index(directions())
-    |> Enum.each(fn {direction, i} ->
+    |> Enum.each(fn {direction, _} ->
       target = new_position(src, direction)
 
       if can_nav_to(grid, target) do

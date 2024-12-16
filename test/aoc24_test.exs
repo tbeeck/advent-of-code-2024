@@ -467,7 +467,23 @@ defmodule Aoc24Test do
     @tag timeout: :infinity
     test "part 1 input", %{test: test_name} do
       output = do_test(test_name, "day16/input.txt", &Aoc24.Day16.part1/1)
-      assert output == 102504
+      assert output == 102_504
+    end
+
+    test "part 2 example", %{test: test_name} do
+      output = do_test(test_name, "day16/example.txt", &Aoc24.Day16.part2/1)
+      assert output == 45
+    end
+
+    test "part 2 example 2", %{test: test_name} do
+      output = do_test(test_name, "day16/example_2.txt", &Aoc24.Day16.part2/1)
+      assert output == 64
+    end
+
+    @tag timeout: :infinity
+    test "part 2 input", %{test: test_name} do
+      output = do_test(test_name, "day16/input.txt", &Aoc24.Day16.part2/1)
+      assert output == nil
     end
   end
 
