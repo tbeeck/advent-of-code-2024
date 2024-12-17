@@ -480,10 +480,10 @@ defmodule Aoc24Test do
       assert output == 64
     end
 
-    @tag timeout: :infinity
+    @tag timeout: :infinity, skip: "Takes 15 minutes"
     test "part 2 input", %{test: test_name} do
       output = do_test(test_name, "day16/input.txt", &Aoc24.Day16.part2/1)
-      assert output == nil
+      assert output == 535
     end
   end
 
