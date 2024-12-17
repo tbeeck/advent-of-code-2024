@@ -487,6 +487,18 @@ defmodule Aoc24Test do
     end
   end
 
+  describe "Day 17" do
+    test "part 1 example", %{test: test_name} do
+      output = do_test(test_name, "day17/example.txt", &Aoc24.Day17.part1/1)
+      assert output == "4,6,3,5,6,3,5,2,1,0"
+    end
+
+    test "part 1 input", %{test: test_name} do
+      output = do_test(test_name, "day17/input.txt", &Aoc24.Day17.part1/1)
+      assert output == ""
+    end
+  end
+
   defp do_test(test, input_path, func, opts \\ []) do
     {:ok, contents} = File.read(Path.join(["./test", "support", input_path]))
 
@@ -503,7 +515,7 @@ defmodule Aoc24Test do
 
   defp print_result(test, value, time) do
     time_format = :erlang.float_to_binary(time / 1_000_000, decimals: 3)
-    IO.puts("#{time_format}s\t#{Atom.to_string(test)}:\t\t#{Integer.to_string(value)}")
+    IO.puts("#{time_format}s\t#{Atom.to_string(test)}:\t\t#{value}")
     value
   end
 end
