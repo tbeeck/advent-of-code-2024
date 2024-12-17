@@ -9,9 +9,9 @@ defmodule Aoc24.Day17 do
 
     state =
       %State{registers: registers, instructions: instructions, pc: 0, output: []}
-      |> IO.inspect()
+      |> sim()
 
-    ""
+    Enum.join(state.output, ",")
   end
 
   def part2(input) do
@@ -41,35 +41,116 @@ defmodule Aoc24.Day17 do
   end
 
   def adv(state) do
-    state
+    numerator = Map.fetch!(state.registers, "A")
+    denomenator = Integer.pow(2, get_combo_op(state))
+    new_registers = Map.put(state.registers, "A", Integer.floor_div(numerator, denomenator))
+
+    %State{
+      state
+      | registers: new_registers,
+        pc: state.pc + 2
+    }
   end
 
   def bxl(state) do
-    state
+    result = Bitwise.bxor(Map.fetch!(state.registers, "B"), get_literal_op(state))
+    new_registers = Map.put(state.registers, "B", result)
+
+    %State{
+      state
+      | registers: new_registers,
+        pc: state.pc + 2
+    }
   end
 
   def bst(state) do
-    state
+    result = Integer.mod(get_combo_op(state), 8)
+    new_registers = Map.put(state.registers, "B", result)
+
+    %State{
+      state
+      | registers: new_registers,
+        pc: state.pc + 2
+    }
   end
 
   def jnz(state) do
-    state
+    new_pc =
+      if Map.fetch!(state.registers, "A") != 0 do
+        get_literal_op(state)
+      else
+        state.pc + 2
+      end
+
+    %State{
+      state
+      | pc: new_pc
+    }
   end
 
   def bxc(state) do
-    state
+    result = Bitwise.bxor(Map.fetch!(state.registers, "B"), Map.fetch!(state.registers, "C"))
+    new_registers = Map.put(state.registers, "B", result)
+
+    %State{
+      state
+      | registers: new_registers,
+        pc: state.pc + 2
+    }
   end
 
   def out(state) do
-    state
+    val = Integer.mod(get_combo_op(state), 8)
+
+    %State{
+      state
+      | output: state.output ++ [val],
+        pc: state.pc + 2
+    }
   end
 
   def bdv(state) do
-    state
+    numerator = Map.fetch!(state.registers, "A")
+    denomenator = Integer.pow(2, get_combo_op(state))
+    new_registers = Map.put(state.registers, "B", Integer.floor_div(numerator, denomenator))
+
+    %State{
+      state
+      | registers: new_registers,
+        pc: state.pc + 2
+    }
   end
 
   def cdv(state) do
-    state
+    numerator = Map.fetch!(state.registers, "A")
+    denomenator = Integer.pow(2, get_combo_op(state))
+    new_registers = Map.put(state.registers, "C", Integer.floor_div(numerator, denomenator))
+
+    %State{
+      state
+      | registers: new_registers,
+        pc: state.pc + 2
+    }
+  end
+
+  def get_combo_op(state) do
+    combo_val(state, elem(state.instructions, state.pc + 1))
+  end
+
+  def get_literal_op(state) do
+    elem(state.instructions, state.pc + 1)
+  end
+
+  def combo_val(state, val) do
+    case val do
+      0 -> 0
+      1 -> 1
+      2 -> 2
+      3 -> 3
+      4 -> Map.fetch!(state.registers, "A")
+      5 -> Map.fetch!(state.registers, "B")
+      6 -> Map.fetch!(state.registers, "C")
+    end
   end
 
   def parse_input(input) do
