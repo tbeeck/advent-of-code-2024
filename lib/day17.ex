@@ -15,7 +15,28 @@ defmodule Aoc24.Day17 do
   end
 
   def part2(input) do
-    ""
+    {registers, instructions} =
+      parse_input(input)
+
+    state =
+      %State{registers: registers, instructions: instructions, pc: 0, output: []}
+      |> IO.inspect()
+
+    sim(state)
+    Enum.join(state.output, ",")
+  end
+
+  def result_of(a, instructions) do
+    result =
+      %State{
+        registers: %{"A" => a, "B" => 0, "C" => 0},
+        instructions: instructions,
+        pc: 0,
+        output: []
+      }
+      |> sim()
+
+    result.output
   end
 
   def sim(state) when state.pc >= tuple_size(state.instructions) do
@@ -172,5 +193,44 @@ defmodule Aoc24.Day17 do
 
   def parseint(s) do
     elem(Integer.parse(s), 0)
+  end
+
+  def matching_end_sims do
+    target = {2, 4, 1, 1, 7, 5, 4, 6, 0, 3, 1, 4, 5, 5, 3, 0}
+    target_l = Enum.reverse(Tuple.to_list(target))
+
+    found =
+      Enum.reduce(0..100_000, [], fn start_a, acc ->
+        result = result_of(start_a, target)
+
+        IO.puts("#{start_a},#{Enum.join(result, " ")}")
+
+        if common_start(target_l, Enum.reverse(result)) do
+          [start_a] ++ acc
+        else
+          acc
+        end
+      end)
+
+    IO.inspect(found, limit: :infinity)
+  end
+
+  def common_start(_, []) do
+    true
+  end
+
+  def common_start([], _) do
+    true
+  end
+
+  def common_start(long, short) do
+    [a | long_rest] = long
+    [b | short_rest] = short
+
+    if a == b do
+      common_start(long_rest, short_rest)
+    else
+      false
+    end
   end
 end

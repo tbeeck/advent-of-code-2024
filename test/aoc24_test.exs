@@ -503,7 +503,7 @@ defmodule Aoc24Test do
       assert output == 117_440
     end
 
-    test "part 1 input", %{test: test_name} do
+    test "part 2 input", %{test: test_name} do
       output = do_test(test_name, "day17/input.txt", &Aoc24.Day17.part2/1)
       assert output == nil
     end
