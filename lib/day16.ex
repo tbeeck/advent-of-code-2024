@@ -13,6 +13,11 @@ defmodule Aoc24.Day16 do
     end_point = find_first(grid, :end)
 
     shortest_path(start_point, end_point)
+    |> Enum.filter(fn {{point, _direction}, _cost} ->
+      point == end_point
+    end)
+    |> Enum.min_by(fn {_k, v} -> v end)
+    |> elem(1)
   end
 
   def part2(input) do
@@ -24,7 +29,40 @@ defmodule Aoc24.Day16 do
     start_point = find_first(grid, :start)
     end_point = find_first(grid, :end)
 
-    shortest_path(start_point, end_point)
+    start_distances = shortest_path(start_point, end_point)
+    min_cost = min_end_point(start_distances, end_point)
+
+    end_distances =
+      directions()
+      |> Enum.map(fn d -> {end_point, d} end)
+      |> Enum.reduce(Map.new(), fn specific_end, acc ->
+        shortest_path_withdir(specific_end, start_point)
+        |> Enum.reduce(acc, fn {k, v}, inner_acc ->
+          Map.put(inner_acc, k, min(v, Map.get(inner_acc, k, :infinity)))
+        end)
+      end)
+
+    Enum.filter(start_distances, fn {start_dest, start_cost} ->
+      {dest_point, dir} = start_dest
+      opposite_dir = case dir do
+        :up -> :down
+        :down -> :up
+        :left -> :right
+        :right -> :left
+      end
+      finishing_cost = Map.get(end_distances, {dest_point, opposite_dir}, :infinity)
+      start_cost + finishing_cost == min_cost
+    end)
+    |> Enum.map(fn {{point, _dir}, _cost} -> point end)
+    |> Enum.uniq()
+    |> length()
+  end
+
+  def min_end_point(distances, end_point) do
+    directions()
+    |> Enum.map(fn dir -> {end_point, dir} end)
+    |> Enum.map(fn point -> Map.get(distances, point, :infinity) end)
+    |> Enum.min()
   end
 
   def shortest_path(start_point, end_point) do
@@ -40,20 +78,21 @@ defmodule Aoc24.Day16 do
 
     queue = %{real_start => 0}
 
-    min_cost =
-      dijkstras(distances, queue, end_point)
-      |> Enum.filter(fn {{point, _direction}, _cost} ->
-        point == end_point
-      end)
-      |> Enum.min_by(fn {_k, v} -> v end)
-      |> elem(1)
+    dijkstras(distances, queue, end_point)
+  end
 
-    dfs(real_start, end_point, min_cost)
-    |> Enum.flat_map(fn l -> l end)
-    |> IO.inspect()
-    |> Enum.uniq()
-    |> IO.inspect()
-    |> length()
+  def shortest_path_withdir(start_node, end_point) do
+    distances =
+      :ets.tab2list(:edges)
+      |> Enum.reduce(%{}, fn {{source, destination}, _weight}, acc ->
+        Map.put_new(acc, source, :infinity)
+        |> Map.put_new(destination, :infinity)
+      end)
+      |> Map.put(start_node, 0)
+
+    queue = %{start_node => 0}
+
+    dijkstras(distances, queue, end_point)
   end
 
   @spec dijkstras(any(), any(), any()) :: any()
@@ -83,34 +122,6 @@ defmodule Aoc24.Day16 do
 
     # Recur with updated distances, queue, and predecessors
     dijkstras(new_distances, new_queue, target)
-  end
-
-  # NOTE: Do dijkstras for every point, then for every navigable point, see if start->cur + cur-> end = min distance
-  def dfs(cur, target, fuel, path \\ [], visited \\ MapSet.new())
-  def dfs(_, _, fuel, _, _) when fuel < 0, do: []
-
-  def dfs({cur_pos, _}, target, fuel, path, _) when fuel == 0 do
-    if cur_pos == target do
-      [[cur_pos] ++ path]
-    else
-      []
-    end
-  end
-
-  def dfs(cur, target, fuel, path, visited) do
-    {cur_pos, _} = cur
-
-    if cur in visited do
-      []
-    else
-      visited = MapSet.put(visited, cur)
-      neighbors = :ets.match(:edges, {{cur, :"$1"}, :"$2"})
-
-      Enum.reduce(neighbors, [], fn [neighbor, weight], result_acc ->
-        result = dfs(neighbor, target, fuel - weight, [cur_pos] ++ path, visited)
-        result ++ result_acc
-      end)
-    end
   end
 
   def build_graph(grid) do
