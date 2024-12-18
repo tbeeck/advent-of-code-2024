@@ -7,11 +7,38 @@ defmodule Aoc24.Day18 do
     width = Keyword.get(opts, :width, 70)
     height = Keyword.get(opts, :height, 70)
 
-    input
-    |> process_input()
-    |> IO.inspect()
+    walls =
+      input
+      |> process_input()
+      |> Enum.slice(0..(count - 1))
 
-    0
+    graph =
+      grid_graph(walls, {width, height})
+      |> IO.inspect()
+
+    Util.Graph.dijkstras({0, 0}, graph)
+    |> Map.get({width, height}, :infinity)
+  end
+
+  def grid_graph(walls, {width, height}) do
+    navigable =
+      for x <- 0..width,
+          y <- 0..height,
+          {x, y} not in walls,
+          do: {x, y}
+
+    navigable
+    |> Enum.map(fn pair ->
+      neighbors =
+        Util.neighbors_of(pair)
+        |> Enum.filter(fn n ->
+          Util.in_bounds?(n, {width + 1, height + 1}) and n not in walls
+        end)
+        |> Enum.map(fn n -> {n, 1} end)
+
+      {pair, neighbors}
+    end)
+    |> Enum.reduce(Map.new(), fn {pair, neighbors}, acc -> Map.put(acc, pair, neighbors) end)
   end
 
   def process_input(input) do
