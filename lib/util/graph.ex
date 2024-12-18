@@ -1,4 +1,5 @@
 defmodule Aoc24.Util.Graph do
+  # Dijkstra's algorithm
   @type distance_map :: %{any() => number()}
   @type edges :: %{any() => {any(), number()}}
   @type node_queue :: %{any() => number()}
@@ -48,5 +49,46 @@ defmodule Aoc24.Util.Graph do
       end)
 
     dijkstras(new_distances, edges, new_queue)
+  end
+
+  defmodule UnionFind do
+    defstruct [:parents]
+    @type t :: %UnionFind{parents: tuple()}
+
+    @spec new(integer()) :: t()
+    def new(size) do
+      parents =
+        Range.to_list(0..(size - 1))
+        |> List.to_tuple()
+
+      %UnionFind{
+        parents: parents
+      }
+    end
+
+    @spec union(t(), any(), any()) :: t()
+    def union(uf, a, b) do
+      a_parent = find(uf, a)
+      b_parent = find(uf, b)
+
+      %UnionFind{
+        uf
+        | parents: put_elem(uf.parents, b_parent, a_parent)
+      }
+    end
+
+    @spec find(t(), any()) :: integer()
+    def find(uf, a) do
+      if a == elem(uf.parents, a) do
+        a
+      else
+        find(uf, elem(uf.parents, a))
+      end
+    end
+
+    @spec connected?(t(), any(), any()) :: boolean()
+    def connected?(uf, a, b) do
+      find(uf, a) == find(uf, b)
+    end
   end
 end
