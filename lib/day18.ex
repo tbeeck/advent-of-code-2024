@@ -3,7 +3,10 @@ defmodule Aoc24.Day18 do
 
   def part1(input, opts \\ []) do
     count = Keyword.get(opts, :count, 1024)
-    |> IO.inspect()
+    # Inclusive
+    width = Keyword.get(opts, :width, 70)
+    height = Keyword.get(opts, :height, 70)
+
     input
     |> process_input()
     |> IO.inspect()

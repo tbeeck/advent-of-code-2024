@@ -511,7 +511,13 @@ defmodule Aoc24Test do
 
   describe "Day 18" do
     test "part 1 example", %{test: test_name} do
-      output = do_test(test_name, "day18/example.txt", &Aoc24.Day18.part1/2, count: 12)
+      output =
+        do_test(test_name, "day18/example.txt", &Aoc24.Day18.part1/2,
+          count: 12,
+          width: 6,
+          height: 6
+        )
+
       assert output == 22
     end
 
