@@ -543,6 +543,18 @@ defmodule Aoc24Test do
     end
   end
 
+  describe "Day 19" do
+    test "part 1 example", %{test: test_name} do
+      output = do_test(test_name, "day19/example.txt", &Aoc24.Day19.part1/1)
+      assert output == 6
+    end
+
+    test "part 1 input", %{test: test_name} do
+      output = do_test(test_name, "day19/input.txt", &Aoc24.Day19.part1/1)
+      assert output == 247
+    end
+  end
+
   defp do_test(test, input_path, func, opts \\ []) do
     {:ok, contents} = File.read(Path.join(["./test", "support", input_path]))
 
