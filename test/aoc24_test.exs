@@ -553,6 +553,16 @@ defmodule Aoc24Test do
       output = do_test(test_name, "day19/input.txt", &Aoc24.Day19.part1/1)
       assert output == 247
     end
+
+    test "part 2 example", %{test: test_name} do
+      output = do_test(test_name, "day19/example.txt", &Aoc24.Day19.part2/1)
+      assert output == 16
+    end
+
+    test "part 2 input", %{test: test_name} do
+      output = do_test(test_name, "day19/input.txt", &Aoc24.Day19.part2/1)
+      assert output == 247
+    end
   end
 
   defp do_test(test, input_path, func, opts \\ []) do
