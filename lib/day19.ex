@@ -29,7 +29,7 @@ defmodule Aoc24.Day19 do
 
   def ways_to_make(pattern, towels) do
     case :ets.lookup(:memo, pattern) do
-      [{_, ans}] ->
+      [{^pattern, ans}] ->
         ans
 
       [] ->
