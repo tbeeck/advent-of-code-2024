@@ -50,7 +50,7 @@ defmodule Aoc24.Day20 do
     tracks =
       for x <- 0..(width - 1),
           y <- 0..(height - 1),
-          Util.grid_val(grid, {x, y}) == :free,
+          Util.grid_val(grid, {x, y}) != :wall,
           Map.has_key?(start_distances, {x, y}),
           do: {x, y}
 
