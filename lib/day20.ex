@@ -1,14 +1,84 @@
 defmodule Aoc24.Day20 do
   alias Aoc24.Util
 
-  def part1(input) do
+  def part1(input, opts \\ []) do
+    min_saving = Keyword.get(opts, :min_saving, 100)
+
     grid =
       process_input(input)
-      |> IO.inspect(width: 200)
+
+    graph =
+      make_graph(grid)
 
     start_point = Util.find_first_in_2d_tuple(grid, :start)
     end_point = Util.find_first_in_2d_tuple(grid, :end)
-    0
+
+    start_distances = Util.Graph.dijkstras(start_point, graph)
+    end_distances = Util.Graph.dijkstras(end_point, graph)
+
+    find_cheats(grid, start_distances, end_distances, start_point)
+    |> Enum.filter(fn {_p1, _p2, savings} -> savings >= min_saving end)
+    |> length()
+  end
+
+  def find_cheats(grid, start_distances, end_distances, start) do
+    {width, height} = Util.tuple_dimensions_2d(grid)
+
+    walls =
+      for x <- 0..(width - 1),
+          y <- 0..(height - 1),
+          Util.grid_val(grid, {x, y}) == :wall,
+          do: {x, y}
+
+    walls = Enum.filter(walls, fn point -> Util.grid_val(grid, point) == :wall end)
+
+    Enum.flat_map(walls, fn wall ->
+      good_neighbors =
+        Util.valid_neighbors(wall, {width, height})
+        |> Enum.filter(fn n -> Util.grid_val(grid, n) != :wall end)
+
+      pair_combos(good_neighbors)
+    end)
+    |> Enum.map(fn {p1, p2} ->
+      dist1 = Map.get(start_distances, p1)
+      dist2 = Map.get(end_distances, p2)
+      saving = Map.get(end_distances, start) - (dist2 + dist1 + 2)
+      {p1, p2, saving}
+    end)
+    |> Enum.filter(fn {_p1, _p2, saving} -> saving > 0 end)
+    |> Enum.sort_by(fn {_, _, saving} -> saving end)
+    |> Enum.dedup_by(fn {p1, p2, _} -> {p1, p2} end)
+  end
+
+  def pair_combos(pairs) do
+    Enum.flat_map(pairs, fn p1 ->
+      Enum.reduce(pairs, [], fn p2, inner_acc ->
+        if p1 != p2 do
+          [{p1, p2}] ++ inner_acc
+        else
+          inner_acc
+        end
+      end)
+    end)
+  end
+
+  def make_graph(grid) do
+    {width, height} = Util.tuple_dimensions_2d(grid)
+
+    for x <- 0..(width - 1), y <- 0..(height - 1) do
+      {x, y}
+    end
+    |> Enum.filter(fn point -> Util.grid_val(grid, point) != :wall end)
+    |> Enum.reduce(Map.new(), fn point, edges_acc ->
+      valid_neighbors =
+        Util.valid_neighbors(point, {width, height})
+        |> Enum.filter(fn neighbor -> Util.grid_val(grid, neighbor) != :wall end)
+
+      Enum.reduce(valid_neighbors, edges_acc, fn neighbor, inner_edges_acc ->
+        existing = Map.get(inner_edges_acc, point, [])
+        Map.put(inner_edges_acc, point, [{neighbor, 1}] ++ existing)
+      end)
+    end)
   end
 
   def process_input(input) do
