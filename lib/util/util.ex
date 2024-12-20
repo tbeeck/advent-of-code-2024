@@ -74,4 +74,18 @@ defmodule Aoc24.Util do
       nil
     end
   end
+
+  @spec radius_around({integer(), integer()}, integer()) :: [{integer(), integer()}, ...]
+  def radius_around({x, y}, r) do
+    for a <- (x - r)..(x + r),
+        b <- (y - r)..(y + r),
+        manhattan_distance({x, y}, {a, b}) <= r,
+        {a, b} != {x, y},
+        do: {a, b}
+  end
+
+  @spec manhattan_distance({integer(), integer()}, {integer(), integer()}) :: integer()
+  def manhattan_distance({a, b}, {c, d}) do
+    abs(a - c) + abs(b - d)
+  end
 end

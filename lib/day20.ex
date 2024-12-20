@@ -18,6 +18,7 @@ defmodule Aoc24.Day20 do
 
     find_1ps_cheats(grid, start_distances, end_distances, start_point)
     |> Enum.filter(fn {_p1, _p2, savings} -> savings >= min_saving end)
+    |> IO.inspect(limit: :infinity)
     |> length()
   end
 
@@ -36,7 +37,33 @@ defmodule Aoc24.Day20 do
     start_distances = Util.Graph.dijkstras(start_point, graph)
     end_distances = Util.Graph.dijkstras(end_point, graph)
 
-    0
+    find_20ps_cheats(grid, start_distances, end_distances, start_point)
+    |> Enum.filter(fn {_, _, saving} -> saving >= min_saving end)
+    |> Enum.sort_by(fn {_, _, saving} -> saving end)
+    |> IO.inspect(limit: :infinity)
+    |> length()
+  end
+
+  def find_20ps_cheats(grid, start_distances, end_distances, start) do
+    {width, height} = Util.tuple_dimensions_2d(grid)
+
+    tracks =
+      for x <- 0..(width - 1),
+          y <- 0..(height - 1),
+          Util.grid_val(grid, {x, y}) == :free,
+          Map.has_key?(start_distances, {x, y}),
+          do: {x, y}
+
+    Enum.flat_map(tracks, fn start_point ->
+      Util.radius_around(start_point, 20)
+      |> Enum.filter(fn end_point -> Util.grid_val(grid, end_point) == :free end)
+      |> Enum.map(fn end_point ->
+        {start_point, end_point,
+         time_saving(start_point, end_point, start_distances, end_distances, start)}
+      end)
+      |> Enum.filter(fn {_start, _end, saving} -> saving > 0 end)
+      |> Enum.uniq_by(fn {s, e, _} -> {s, e} end)
+    end)
   end
 
   def find_1ps_cheats(grid, start_distances, end_distances, start) do
@@ -48,8 +75,6 @@ defmodule Aoc24.Day20 do
           Util.grid_val(grid, {x, y}) == :wall,
           do: {x, y}
 
-    walls = Enum.filter(walls, fn point -> Util.grid_val(grid, point) == :wall end)
-
     Enum.flat_map(walls, fn wall ->
       good_neighbors =
         Util.valid_neighbors(wall, {width, height})
@@ -58,14 +83,17 @@ defmodule Aoc24.Day20 do
       pair_combos(good_neighbors)
     end)
     |> Enum.map(fn {p1, p2} ->
-      dist1 = Map.get(start_distances, p1)
-      dist2 = Map.get(end_distances, p2)
-      saving = Map.get(end_distances, start) - (dist2 + dist1 + 2)
-      {p1, p2, saving}
+      {p1, p2, time_saving(p1, p2, start_distances, end_distances, start)}
     end)
     |> Enum.filter(fn {_p1, _p2, saving} -> saving > 0 end)
     |> Enum.sort_by(fn {_, _, saving} -> saving end)
     |> Enum.dedup_by(fn {p1, p2, _} -> {p1, p2} end)
+  end
+
+  def time_saving(p1, p2, start_distances, end_distances, start) do
+    dist1 = Map.get(start_distances, p1)
+    dist2 = Map.get(end_distances, p2)
+    Map.get(end_distances, start) - (dist2 + dist1 + Util.manhattan_distance(p1, p2))
   end
 
   def pair_combos(pairs) do
