@@ -16,12 +16,30 @@ defmodule Aoc24.Day20 do
     start_distances = Util.Graph.dijkstras(start_point, graph)
     end_distances = Util.Graph.dijkstras(end_point, graph)
 
-    find_cheats(grid, start_distances, end_distances, start_point)
+    find_1ps_cheats(grid, start_distances, end_distances, start_point)
     |> Enum.filter(fn {_p1, _p2, savings} -> savings >= min_saving end)
     |> length()
   end
 
-  def find_cheats(grid, start_distances, end_distances, start) do
+  def part2(input, opts \\ []) do
+    min_saving = Keyword.get(opts, :min_saving, 100)
+
+    grid =
+      process_input(input)
+
+    graph =
+      make_graph(grid)
+
+    start_point = Util.find_first_in_2d_tuple(grid, :start)
+    end_point = Util.find_first_in_2d_tuple(grid, :end)
+
+    start_distances = Util.Graph.dijkstras(start_point, graph)
+    end_distances = Util.Graph.dijkstras(end_point, graph)
+
+    0
+  end
+
+  def find_1ps_cheats(grid, start_distances, end_distances, start) do
     {width, height} = Util.tuple_dimensions_2d(grid)
 
     walls =

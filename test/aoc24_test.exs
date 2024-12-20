@@ -577,12 +577,12 @@ defmodule Aoc24Test do
     end
 
     test "part 2 example", %{test: test_name} do
-      output = do_test(test_name, "day20/example.txt", &Aoc24.Day20.part2/1)
-      assert output == nil
+      output = do_test(test_name, "day20/example.txt", &Aoc24.Day20.part2/2, min_saving: 50)
+      assert output == 285
     end
 
     test "part 2 input", %{test: test_name} do
-      output = do_test(test_name, "day20/input.txt", &Aoc24.Day20.part1/1)
+      output = do_test(test_name, "day20/input.txt", &Aoc24.Day20.part2/1)
       assert output == nil
     end
   end
