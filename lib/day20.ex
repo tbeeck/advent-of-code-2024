@@ -18,7 +18,6 @@ defmodule Aoc24.Day20 do
 
     find_1ps_cheats(grid, start_distances, end_distances, start_point)
     |> Enum.filter(fn {_p1, _p2, savings} -> savings >= min_saving end)
-    |> IO.inspect(limit: :infinity)
     |> length()
   end
 
@@ -56,7 +55,9 @@ defmodule Aoc24.Day20 do
 
     Enum.flat_map(tracks, fn start_point ->
       Util.radius_around(start_point, 20)
-      |> Enum.filter(fn end_point -> Util.grid_val(grid, end_point) == :free end)
+      |> Enum.filter(fn end_point -> Util.in_bounds?(end_point, {width, height}) end)
+      |> Enum.filter(fn end_point -> Util.grid_val(grid, end_point) != :wall end)
+      |> Enum.filter(fn end_point -> Map.get(end_distances, end_point, :infinity) < :infinity end)
       |> Enum.map(fn end_point ->
         {start_point, end_point,
          time_saving(start_point, end_point, start_distances, end_distances, start)}
