@@ -26,6 +26,15 @@ defmodule Aoc24.Day21 do
       Map.merge(pair_paths(num_grid()), pair_paths(dir_grid()))
 
     Enum.map(codes, fn code ->
+      code
+      |> IO.inspect()
+
+      search_seqs(code, seqs, 3, [])
+      |> seq_str()
+      |> IO.inspect(limit: :infinity)
+
+      IO.puts("-----ENDTEST-----")
+
       len =
         code
         |> IO.inspect()
@@ -65,9 +74,28 @@ defmodule Aoc24.Day21 do
       end)
       |> IO.inspect()
       |> Enum.map(fn {l, _} -> l end)
-      |> Enum.sum
+      |> Enum.sum()
 
     IO.puts("--- end code #{code} - #{result} ---")
+    result
+  end
+
+  def search_seqs(cur_code, _, depth, _) when depth < 1 do
+    cur_code
+  end
+
+  def search_seqs(cur_code, seqs, depth, current) do
+    result =
+      Enum.chunk_every(["A" | cur_code], 2, 1, :discard)
+      |> Enum.flat_map(fn [l, r] ->
+        Map.get(seqs, {l, r})
+        |> Enum.map(fn path ->
+          to_gen = path ++ ["A"]
+          search_seqs(to_gen, seqs, depth - 1, current)
+        end)
+        |> Enum.min_by(fn path -> length(path) end)
+      end)
+
     result
   end
 
@@ -168,3 +196,12 @@ defmodule Aoc24.Day21 do
     |> Enum.uniq_by(fn l -> List.to_tuple(l) end)
   end
 end
+
+###
+#
+#
+# 179A: <v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A0
+# 1
+#  ["<", "^", "<"], ["^", "<", "<"], ["<", "<", "^"]
+#
+#
