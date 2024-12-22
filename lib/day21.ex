@@ -19,6 +19,8 @@ defmodule Aoc24.Day21 do
   end
 
   def part1(input) do
+    :ets.new(:memo_table, [:named_table, :set, :public])
+
     codes =
       process_input(input)
 
@@ -26,13 +28,9 @@ defmodule Aoc24.Day21 do
       Map.merge(pair_paths(num_grid()), pair_paths(dir_grid()))
 
     Enum.map(codes, fn code ->
-      code
-
       real_seq =
         search_seqs(code, seqs, 3)
         |> seq_str()
-
-      IO.puts("final length: #{code} -> #{String.length(real_seq)}")
 
       num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
       num * String.length(real_seq)
@@ -40,30 +38,24 @@ defmodule Aoc24.Day21 do
     |> Enum.sum()
   end
 
-  def make_code_sequence(code, _, times) when times < 1 do
-    length(code)
-  end
+  def part2(input) do
+    :ets.new(:memo_table, [:named_table, :set, :public])
 
-  def make_code_sequence(code, seqs, times) do
-    IO.puts("--- start code #{code} (depth #{times}) ---")
+    codes =
+      process_input(input)
 
-    result =
-      Enum.chunk_every(["A" | code], 2, 1, :discard)
-      |> Enum.map(fn [l, r] ->
+    seqs =
+      Map.merge(pair_paths(num_grid()), pair_paths(dir_grid()))
 
-        Map.get(seqs, {l, r})
-        |> Enum.map(fn list ->
-          val = make_code_sequence(list ++ ["A"], seqs, times - 1)
-          IO.puts("Answer FOR #{list ++ ["A"]} at depth #{times}: #{val}")
-          {val, list ++ ["A"]}
-        end)
-        |> Enum.min_by(fn {l, _} -> l end)
-      end)
-      |> Enum.map(fn {l, _} -> l end)
-      |> Enum.sum()
+    Enum.map(codes, fn code ->
+      real_seq =
+        search_seqs(code, seqs, 26)
+        |> seq_str()
 
-    IO.puts("--- end code #{code} - #{result} ---")
-    result
+      num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
+      num * String.length(real_seq)
+    end)
+    |> Enum.sum()
   end
 
   def search_seqs(cur_code, _, depth) when depth < 1 do
@@ -71,24 +63,44 @@ defmodule Aoc24.Day21 do
   end
 
   def search_seqs(cur_code, seqs, depth) do
-    result =
-      Enum.chunk_every(["A" | cur_code], 2, 1, :discard)
-      |> Enum.map(fn [l, r] ->
-        IO.puts("Code  #{cur_code} - Searching #{l} to #{r}")
+    key = {List.to_tuple(cur_code), depth}
 
-        Map.get(seqs, {l, r})
-        |> Enum.map(fn path ->
-          to_gen = path ++ ["A"]
-          search_seqs(to_gen, seqs, depth - 1)
-        end)
-        |> Enum.min_by(fn path -> length(path) end)
-      end)
-      |> Enum.reduce([], fn elem, acc ->
-        IO.puts("reducing #{cur_code} - #{elem}")
-        acc ++ elem
-      end)
+    case :ets.lookup(:memo_table, key) do
+      [{^key, result}] ->
+        result
 
-    result
+      [] ->
+        result =
+          Enum.chunk_every(["A" | cur_code], 2, 1, :discard)
+          |> Enum.map(fn [l, r] ->
+            Map.get(seqs, {l, r})
+            |> Enum.map(fn path ->
+              to_gen = path ++ ["A"]
+              search_seqs(to_gen, seqs, depth - 1)
+            end)
+            |> Enum.min_by(fn path -> length(path) end)
+          end)
+          |> Enum.reduce([], fn elem, acc ->
+            acc ++ elem
+          end)
+
+        :ets.insert(:memo_table, {key, result})
+        result
+    end
+
+    # result =
+    #   Enum.chunk_every(["A" | cur_code], 2, 1, :discard)
+    #   |> Enum.map(fn [l, r] ->
+    #     Map.get(seqs, {l, r})
+    #     |> Enum.map(fn path ->
+    #       to_gen = path ++ ["A"]
+    #       search_seqs(to_gen, seqs, depth - 1)
+    #     end)
+    #     |> Enum.min_by(fn path -> length(path) end)
+    #   end)
+    #   |> Enum.reduce([], fn elem, acc ->
+    #     acc ++ elem
+    #   end)
   end
 
   def process_input(input) do
