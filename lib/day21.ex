@@ -21,6 +21,9 @@ defmodule Aoc24.Day21 do
     codes =
       process_input(input)
 
+      all_orders_of(["^", ">", "^"])
+      |> IO.inspect()
+
     num_seqs =
       pair_paths(num_grid())
       |> IO.inspect(limit: :infinity)
@@ -126,20 +129,12 @@ defmodule Aoc24.Day21 do
     for x <- 0..(width - 1), y <- 0..(height - 1), Util.grid_val(grid, {x, y}) != nil do
       Util.Graph.dijkstras({x, y}, graph)
       |> Enum.reduce(Map.new(), fn {dest, cost}, acc ->
-        path =
+        paths =
           dfs(graph, [], {x, y}, dest, cost, MapSet.new())
           |> path_to_seq()
-          |> Enum.sort_by(fn c ->
-            case c do
-              "A" -> 0
-              "^" -> 1
-              ">" -> 1
-              "v" -> 2
-              "<" -> 3
-            end
-          end)
+          |> all_orders_of()
 
-        Map.put(acc, {Util.grid_val(grid, {x, y}), Util.grid_val(grid, dest)}, path)
+        Map.put(acc, {Util.grid_val(grid, {x, y}), Util.grid_val(grid, dest)}, paths)
       end)
     end
     |> Enum.reduce(Map.new(), fn map, acc ->
@@ -148,4 +143,15 @@ defmodule Aoc24.Day21 do
   end
 
   def seq_str(seq), do: Enum.join(seq, "")
+
+  def all_orders_of(path) when length(path) == 0, do: []
+  def all_orders_of(path) when length(path) == 1, do: [path]
+  def all_orders_of([first | rest]) do
+    remaining = all_orders_of(rest)
+    Enum.reduce(remaining, [], fn l, acc ->
+      acc ++ [[first] ++ l] ++ [l ++ [first]]
+    end)
+    |> Enum.uniq_by(fn l -> List.to_tuple(l) end)
+  end
+
 end
