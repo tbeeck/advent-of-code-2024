@@ -23,15 +23,19 @@ defmodule Aoc24.Day21 do
 
     num_seqs =
       pair_paths(num_grid())
+      |> IO.inspect(limit: :infinity)
+      |> Map.put({"3", "7"}, ["<", "<", "^", "^"])
 
-    dir_seqs = pair_paths(dir_grid())
+    dir_seqs =
+      pair_paths(dir_grid())
+      |> IO.inspect(limit: :infinity)
 
     Enum.map(codes, fn code ->
       final_code =
         code
         |> IO.inspect()
-        |> make_code_sequence(num_seqs, 1)
-        |> make_code_sequence(dir_seqs, 2)
+        |> make_code_sequence(num_seqs, 1, false)
+        |> make_code_sequence(dir_seqs, 2, true)
 
       IO.inspect(length(final_code))
       num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
@@ -41,9 +45,9 @@ defmodule Aoc24.Day21 do
     |> Enum.sum()
   end
 
-  def make_code_sequence(code, _, times) when times < 1, do: code
+  def make_code_sequence(code, _, times, _) when times < 1, do: code
 
-  def make_code_sequence(code, seqs, times) do
+  def make_code_sequence(code, seqs, times, sort?) do
     cur =
       Enum.chunk_every(["A"] ++ code, 2, 1, :discard)
       |> Enum.reduce([], fn [l, r], acc ->
@@ -51,7 +55,9 @@ defmodule Aoc24.Day21 do
       end)
       |> IO.inspect(width: 200, limit: :infinity)
 
-    make_code_sequence(cur, seqs, times - 1)
+    # |> IO.inspect(width: 200, limit: :infinity)
+    IO.inspect(seq_str(cur))
+    make_code_sequence(cur, seqs, times - 1, sort?)
   end
 
   def process_input(input) do
@@ -123,6 +129,15 @@ defmodule Aoc24.Day21 do
         path =
           dfs(graph, [], {x, y}, dest, cost, MapSet.new())
           |> path_to_seq()
+          |> Enum.sort_by(fn c ->
+            case c do
+              "A" -> 0
+              "^" -> 1
+              ">" -> 1
+              "v" -> 2
+              "<" -> 3
+            end
+          end)
 
         Map.put(acc, {Util.grid_val(grid, {x, y}), Util.grid_val(grid, dest)}, path)
       end)
@@ -131,4 +146,6 @@ defmodule Aoc24.Day21 do
       Map.merge(acc, map)
     end)
   end
+
+  def seq_str(seq), do: Enum.join(seq, "")
 end
