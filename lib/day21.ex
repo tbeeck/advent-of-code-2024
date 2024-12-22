@@ -1,4 +1,5 @@
 defmodule Aoc24.Day21 do
+  use Memoize
   alias Aoc24.Util
 
   def num_grid do
@@ -21,46 +22,53 @@ defmodule Aoc24.Day21 do
     codes =
       process_input(input)
 
-      all_orders_of(["^", ">", "^"])
-      |> IO.inspect()
-
-    num_seqs =
-      pair_paths(num_grid())
-      |> IO.inspect(limit: :infinity)
-      |> Map.put({"3", "7"}, ["<", "<", "^", "^"])
-
-    dir_seqs =
-      pair_paths(dir_grid())
-      |> IO.inspect(limit: :infinity)
+    seqs =
+      Map.merge(pair_paths(num_grid()), pair_paths(dir_grid()))
 
     Enum.map(codes, fn code ->
-      final_code =
+      len =
         code
         |> IO.inspect()
-        |> make_code_sequence(num_seqs, 1, false)
-        |> make_code_sequence(dir_seqs, 2, true)
+        |> make_code_sequence(seqs, 3)
 
-      IO.inspect(length(final_code))
+      IO.puts("final length: #{code} -> #{len}")
+
       num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
-      num * length(final_code)
+      num * len
     end)
     |> IO.inspect()
     |> Enum.sum()
   end
 
-  def make_code_sequence(code, _, times, _) when times < 1, do: code
+  def make_code_sequence(code, _, times) when times < 1 do
+    IO.inspect(code)
+    length(code)
+  end
 
-  def make_code_sequence(code, seqs, times, sort?) do
-    cur =
-      Enum.chunk_every(["A"] ++ code, 2, 1, :discard)
-      |> Enum.reduce([], fn [l, r], acc ->
-        acc ++ Map.get(seqs, {l, r}) ++ ["A"]
+  def make_code_sequence(code, seqs, times) do
+    IO.puts("--- start code #{code} (depth #{times}) ---")
+
+    result =
+      Enum.chunk_every(["A" | code], 2, 1, :discard)
+      |> Enum.map(fn [l, r] ->
+        IO.inspect([l, r])
+
+        Map.get(seqs, {l, r})
+        |> IO.inspect()
+        |> Enum.map(fn list ->
+          val = make_code_sequence(list ++ ["A"], seqs, times - 1)
+          IO.puts("Answer FOR #{list ++ ["A"]} at depth #{times}: #{val}")
+          {val, list ++ ["A"]}
+        end)
+        |> IO.inspect()
+        |> Enum.min_by(fn {l, _} -> l end)
       end)
-      |> IO.inspect(width: 200, limit: :infinity)
+      |> IO.inspect()
+      |> Enum.map(fn {l, _} -> l end)
+      |> Enum.sum
 
-    # |> IO.inspect(width: 200, limit: :infinity)
-    IO.inspect(seq_str(cur))
-    make_code_sequence(cur, seqs, times - 1, sort?)
+    IO.puts("--- end code #{code} - #{result} ---")
+    result
   end
 
   def process_input(input) do
@@ -130,9 +138,13 @@ defmodule Aoc24.Day21 do
       Util.Graph.dijkstras({x, y}, graph)
       |> Enum.reduce(Map.new(), fn {dest, cost}, acc ->
         paths =
-          dfs(graph, [], {x, y}, dest, cost, MapSet.new())
-          |> path_to_seq()
-          |> all_orders_of()
+          if {x, y} != dest do
+            dfs(graph, [], {x, y}, dest, cost, MapSet.new())
+            |> path_to_seq()
+            |> all_orders_of()
+          else
+            [[]]
+          end
 
         Map.put(acc, {Util.grid_val(grid, {x, y}), Util.grid_val(grid, dest)}, paths)
       end)
@@ -146,12 +158,13 @@ defmodule Aoc24.Day21 do
 
   def all_orders_of(path) when length(path) == 0, do: []
   def all_orders_of(path) when length(path) == 1, do: [path]
+
   def all_orders_of([first | rest]) do
     remaining = all_orders_of(rest)
+
     Enum.reduce(remaining, [], fn l, acc ->
       acc ++ [[first] ++ l] ++ [l ++ [first]]
     end)
     |> Enum.uniq_by(fn l -> List.to_tuple(l) end)
   end
-
 end
