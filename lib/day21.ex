@@ -27,24 +27,20 @@ defmodule Aoc24.Day21 do
 
     Enum.map(codes, fn code ->
       code
-      |> IO.inspect()
 
       real_seq =
         search_seqs(code, seqs, 3)
         |> seq_str()
-        |> IO.inspect(limit: :infinity)
 
       IO.puts("final length: #{code} -> #{String.length(real_seq)}")
 
       num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
       num * String.length(real_seq)
     end)
-    |> IO.inspect()
     |> Enum.sum()
   end
 
   def make_code_sequence(code, _, times) when times < 1 do
-    IO.inspect(code)
     length(code)
   end
 
@@ -54,19 +50,15 @@ defmodule Aoc24.Day21 do
     result =
       Enum.chunk_every(["A" | code], 2, 1, :discard)
       |> Enum.map(fn [l, r] ->
-        IO.inspect([l, r])
 
         Map.get(seqs, {l, r})
-        |> IO.inspect()
         |> Enum.map(fn list ->
           val = make_code_sequence(list ++ ["A"], seqs, times - 1)
           IO.puts("Answer FOR #{list ++ ["A"]} at depth #{times}: #{val}")
           {val, list ++ ["A"]}
         end)
-        |> IO.inspect()
         |> Enum.min_by(fn {l, _} -> l end)
       end)
-      |> IO.inspect()
       |> Enum.map(fn {l, _} -> l end)
       |> Enum.sum()
 
