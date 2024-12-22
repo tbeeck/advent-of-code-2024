@@ -29,21 +29,15 @@ defmodule Aoc24.Day21 do
       code
       |> IO.inspect()
 
-      search_seqs(code, seqs, 3, [])
-      |> seq_str()
-      |> IO.inspect(limit: :infinity)
+      real_seq =
+        search_seqs(code, seqs, 3)
+        |> seq_str()
+        |> IO.inspect(limit: :infinity)
 
-      IO.puts("-----ENDTEST-----")
-
-      len =
-        code
-        |> IO.inspect()
-        |> make_code_sequence(seqs, 3)
-
-      IO.puts("final length: #{code} -> #{len}")
+      IO.puts("final length: #{code} -> #{String.length(real_seq)}")
 
       num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
-      num * len
+      num * String.length(real_seq)
     end)
     |> IO.inspect()
     |> Enum.sum()
@@ -80,20 +74,26 @@ defmodule Aoc24.Day21 do
     result
   end
 
-  def search_seqs(cur_code, _, depth, _) when depth < 1 do
+  def search_seqs(cur_code, _, depth) when depth < 1 do
     cur_code
   end
 
-  def search_seqs(cur_code, seqs, depth, current) do
+  def search_seqs(cur_code, seqs, depth) do
     result =
       Enum.chunk_every(["A" | cur_code], 2, 1, :discard)
-      |> Enum.flat_map(fn [l, r] ->
+      |> Enum.map(fn [l, r] ->
+        IO.puts("Code  #{cur_code} - Searching #{l} to #{r}")
+
         Map.get(seqs, {l, r})
         |> Enum.map(fn path ->
           to_gen = path ++ ["A"]
-          search_seqs(to_gen, seqs, depth - 1, current)
+          search_seqs(to_gen, seqs, depth - 1)
         end)
         |> Enum.min_by(fn path -> length(path) end)
+      end)
+      |> Enum.reduce([], fn elem, acc ->
+        IO.puts("reducing #{cur_code} - #{elem}")
+        acc ++ elem
       end)
 
     result
@@ -107,18 +107,14 @@ defmodule Aoc24.Day21 do
 
   def dfs(_graph, path, cur, target, fuel, _visited)
       when cur == target and fuel == 0,
-      do: path ++ [cur]
+      do: [path ++ [cur]]
 
   def dfs(graph, path, cur, target, fuel, visited) do
     if cur in visited or fuel <= 0 do
-      nil
+      []
     else
-      Enum.reduce(Map.get(graph, cur), nil, fn {neighbor, _cost}, acc ->
-        if acc != nil do
-          acc
-        else
-          dfs(graph, path ++ [cur], neighbor, target, fuel - 1, MapSet.put(visited, cur))
-        end
+      Enum.reduce(Map.get(graph, cur), [], fn {neighbor, _cost}, acc ->
+        dfs(graph, path ++ [cur], neighbor, target, fuel - 1, MapSet.put(visited, cur)) ++ acc
       end)
     end
   end
@@ -168,8 +164,7 @@ defmodule Aoc24.Day21 do
         paths =
           if {x, y} != dest do
             dfs(graph, [], {x, y}, dest, cost, MapSet.new())
-            |> path_to_seq()
-            |> all_orders_of()
+            |> Enum.map(&path_to_seq/1)
           else
             [[]]
           end
