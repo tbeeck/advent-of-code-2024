@@ -88,4 +88,16 @@ defmodule Aoc24.Util do
   def manhattan_distance({a, b}, {c, d}) do
     abs(a - c) + abs(b - d)
   end
+
+  def all_orders_of(l) when length(l) == 0, do: []
+  def all_orders_of(l) when length(l) == 1, do: [l]
+
+  def all_orders_of([first | rest]) do
+    remaining = all_orders_of(rest)
+
+    Enum.reduce(remaining, [], fn l, acc ->
+      acc ++ [[first] ++ l] ++ [l ++ [first]]
+    end)
+    |> Enum.uniq_by(fn l -> List.to_tuple(l) end)
+  end
 end

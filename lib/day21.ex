@@ -28,12 +28,11 @@ defmodule Aoc24.Day21 do
       Map.merge(pair_paths(num_grid()), pair_paths(dir_grid()))
 
     Enum.map(codes, fn code ->
-      real_seq =
+      real_seq_len =
         search_seqs(code, seqs, 3)
-        |> seq_str()
 
       num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
-      num * String.length(real_seq)
+      num * real_seq_len
     end)
     |> Enum.sum()
   end
@@ -48,18 +47,17 @@ defmodule Aoc24.Day21 do
       Map.merge(pair_paths(num_grid()), pair_paths(dir_grid()))
 
     Enum.map(codes, fn code ->
-      real_seq =
+      real_seq_len =
         search_seqs(code, seqs, 26)
-        |> seq_str()
 
       num = Util.parseint(Enum.join(Enum.slice(code, 0..2), ""))
-      num * String.length(real_seq)
+      num * real_seq_len
     end)
     |> Enum.sum()
   end
 
   def search_seqs(cur_code, _, depth) when depth < 1 do
-    cur_code
+    length(cur_code)
   end
 
   def search_seqs(cur_code, seqs, depth) do
@@ -78,11 +76,9 @@ defmodule Aoc24.Day21 do
               to_gen = path ++ ["A"]
               search_seqs(to_gen, seqs, depth - 1)
             end)
-            |> Enum.min_by(fn path -> length(path) end)
+            |> Enum.min()
           end)
-          |> Enum.reduce([], fn elem, acc ->
-            acc ++ elem
-          end)
+          |> Enum.sum()
 
         :ets.insert(:memo_table, {key, result})
         result
@@ -182,25 +178,4 @@ defmodule Aoc24.Day21 do
   end
 
   def seq_str(seq), do: Enum.join(seq, "")
-
-  def all_orders_of(path) when length(path) == 0, do: []
-  def all_orders_of(path) when length(path) == 1, do: [path]
-
-  def all_orders_of([first | rest]) do
-    remaining = all_orders_of(rest)
-
-    Enum.reduce(remaining, [], fn l, acc ->
-      acc ++ [[first] ++ l] ++ [l ++ [first]]
-    end)
-    |> Enum.uniq_by(fn l -> List.to_tuple(l) end)
-  end
 end
-
-###
-#
-#
-# 179A: <v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A0
-# 1
-#  ["<", "^", "<"], ["^", "<", "<"], ["<", "<", "^"]
-#
-#
