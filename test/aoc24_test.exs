@@ -605,6 +605,21 @@ defmodule Aoc24Test do
   end
 
   describe "Day 22" do
+    test "123" do
+      assert Aoc24.Day22.next_n_secrets(123, 10) == [
+               15_887_950,
+               16_495_136,
+               527_345,
+               704_524,
+               1_553_684,
+               12_683_156,
+               11_100_544,
+               12_249_484,
+               7_753_432,
+               5_908_254
+             ]
+    end
+
     test "part 1 example", %{test: test_name} do
       output = do_test(test_name, "day22/example.txt", &Aoc24.Day22.part1/1)
       assert output == 37_327_623
@@ -612,7 +627,7 @@ defmodule Aoc24Test do
 
     test "part 1 input", %{test: test_name} do
       output = do_test(test_name, "day22/input.txt", &Aoc24.Day22.part1/1)
-      assert output == nil
+      assert output == 20_068_964_552
     end
   end
 
