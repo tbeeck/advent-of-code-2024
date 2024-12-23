@@ -39,7 +39,7 @@ defmodule Aoc24.Day22 do
       |> IO.inspect()
 
     all_seqs
-    |> Enum.max_by(fn {k, v} -> v end)
+    |> Enum.max_by(fn {_k, v} -> v end)
     |> elem(1)
   end
 

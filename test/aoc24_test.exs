@@ -651,6 +651,7 @@ defmodule Aoc24Test do
 
     test "part 2 input", %{test: test_name} do
       output = do_test(test_name, "day22/input.txt", &Aoc24.Day22.part2/1)
+      # 2250 to high
       assert output == nil
     end
   end
