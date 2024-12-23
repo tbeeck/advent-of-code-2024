@@ -12,7 +12,7 @@ defmodule Aoc24.Day22 do
     buyer_seqs =
       Enum.map(starts, fn start ->
         seqs =
-          price_changes(start, 1999)
+          price_changes(start, 1998)
           |> Enum.chunk_every(4, 1, :discard)
           |> Enum.reduce(MapSet.new(), fn seq, acc ->
             MapSet.put(acc, seq)
@@ -22,9 +22,7 @@ defmodule Aoc24.Day22 do
       end)
 
     all_seqs =
-      Enum.reduce(buyer_seqs, Map.new(), fn {buyer, seqs}, acc ->
-        IO.puts("Buyer seqs: #{buyer}, #{MapSet.size(seqs)}")
-
+      Enum.reduce(buyer_seqs, Map.new(), fn {_buyer, seqs}, acc ->
         cur =
           Enum.reduce(seqs, Map.new(), fn seq, inner_acc ->
             old_value = Map.get(inner_acc, seq, 0)
@@ -36,7 +34,6 @@ defmodule Aoc24.Day22 do
           v1 + v2
         end)
       end)
-      |> IO.inspect()
 
     all_seqs
     |> Enum.max_by(fn {_k, v} -> v end)
