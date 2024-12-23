@@ -629,6 +629,30 @@ defmodule Aoc24Test do
       output = do_test(test_name, "day22/input.txt", &Aoc24.Day22.part1/1)
       assert output == 20_068_964_552
     end
+
+    test "part 2 example", %{test: test_name} do
+      output = do_test(test_name, "day22/example_p2.txt", &Aoc24.Day22.part2/1)
+      assert output == 23
+    end
+
+    test "price changes" do
+      assert Aoc24.Day22.price_changes(123, 9) == [
+               {-3, 0},
+               {6, 6},
+               {-1, 5},
+               {-1, 4},
+               {0, 4},
+               {2, 6},
+               {-2, 6},
+               {0, 4},
+               {-2, 2}
+             ]
+    end
+
+    test "part 2 input", %{test: test_name} do
+      output = do_test(test_name, "day22/input.txt", &Aoc24.Day22.part2/1)
+      assert output == nil
+    end
   end
 
   defp do_test(test, input_path, func, opts \\ []) do
