@@ -89,6 +89,7 @@ defmodule Aoc24.Util do
     abs(a - c) + abs(b - d)
   end
 
+  @spec all_orders_of(list()) :: [list(), ...]
   def all_orders_of(l) when length(l) == 0, do: []
   def all_orders_of(l) when length(l) == 1, do: [l]
 
@@ -102,9 +103,12 @@ defmodule Aoc24.Util do
   end
 
   # Choose combinations
+  @spec choose(list(any()), integer()) :: list(list(any()))
   def choose(_, n) when n == 0, do: []
+  @spec choose(list(any()), integer()) :: list(list(any()))
   def choose(vals, n) when n == 1, do: Enum.map(vals, fn val -> {val} end)
 
+  @spec choose(list(any()), integer()) :: list(list(any()))
   def choose(vals, n) do
     next_groups =
       choose(vals, n - 1)
