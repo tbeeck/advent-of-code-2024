@@ -14,11 +14,55 @@ defmodule Aoc24.Day24 do
       z_key = wire_key("z", i)
       IO.puts("-- #{z_key} --")
 
-      build_expr(values, z_key)
-      |> IO.inspect(limit: :infinity)
+      real_pin =
+        build_expr(values, z_key)
+        |> normalize_expr()
+
+      build_pin =
+        build_pin(i)
+        |> normalize_expr()
+
+      if build_pin != real_pin do
+        IO.inspect(build_pin, limit: :infinity)
+        IO.inspect(real_pin, limit: :infinity)
+      end
+
+      # build_expr(values, z_key)
+      # |> IO.inspect(limit: :infinity)
     end)
 
     ""
+  end
+
+  def build_pin(bit) when bit == 0 do
+    {:xor, "x00", "y00"}
+  end
+
+  def build_pin(bit) when bit == 1 do
+    {:xor, {:and, "x00", "y00"}, {:xor, "x01", "y01"}}
+  end
+
+  def build_pin(bit) when bit == 2 do
+    {:xor, {:or, {:and, {:and, "x00", "y00"}, {:xor, "x01", "y01"}}, {:and, "x01", "y01"}},
+     {:xor, "x02", "y02"}}
+  end
+
+  def build_pin(bit) do
+    {carry_term, xor_term} = get_carry_xor_terms(build_pin(bit - 1))
+    x_n = wire_key("x", bit)
+    y_n = wire_key("y", bit)
+    x_n1 = wire_key("x", bit - 1)
+    y_n1 = wire_key("y", bit - 1)
+    {:xor, {:or, {:and, x_n1, y_n1}, {:and, carry_term, xor_term}}, {:xor, x_n, y_n}}
+  end
+
+  def get_carry_xor_terms(expr) do
+    {_op, t1, t2} = expr
+
+    case t1 do
+      {:or, _, _} -> {t1, t2}
+      {:xor, _, _} -> {t2, t1}
+    end
   end
 
   def print_state(values) do
@@ -52,10 +96,41 @@ defmodule Aoc24.Day24 do
     end
   end
 
+  def build_expr_names(values, name) do
+    case Map.get(values, name) do
+      {op, lhs, rhs} ->
+        {op, {lhs, build_expr_names(values, lhs)}, {rhs, build_expr_names(values, rhs)}}
+
+      int ->
+        int
+    end
+  end
+
   def build_expr(values, name) do
     case Map.get(values, name) do
-      {op, lhs, rhs} -> {op, {lhs, build_expr(values, lhs)}, {rhs, build_expr(values, rhs)}}
-      int -> int
+      {op, lhs, rhs} -> {op, build_expr(values, lhs), build_expr(values, rhs)}
+      _ -> name
+    end
+  end
+
+  def normalize_expr(expr) do
+    case expr do
+      {op, lhs, rhs} when is_binary(lhs) and is_binary(rhs) ->
+        [small, big] = [lhs, rhs] |> Enum.sort()
+        {op, small, big}
+
+      {op, lhs, rhs} when is_binary(lhs) ->
+        {op, lhs, normalize_expr(rhs)}
+
+      {op, lhs, rhs} when is_binary(rhs) ->
+        {op, rhs, normalize_expr(lhs)}
+
+      {op, lhs, rhs} ->
+        [small, big] = [lhs, rhs] |> Enum.sort() |> Enum.map(&normalize_expr/1)
+        {op, small, big}
+
+      bin ->
+        bin
     end
   end
 
@@ -66,18 +141,6 @@ defmodule Aoc24.Day24 do
     MapSet.union(relevant_wires(lhs), relevant_wires(rhs))
     |> MapSet.put(lhs_name)
     |> MapSet.put(rhs_name)
-  end
-
-  def scan(values) do
-    for x <- 0..100_000, y <- 0..100_000 do
-      state =
-        values
-        |> set_input_wires(x, y)
-
-      if x + y != get_wire_val(state, "z") do
-        print_state(state)
-      end
-    end
   end
 
   def set_input_wires(values, x_val, y_val) do
