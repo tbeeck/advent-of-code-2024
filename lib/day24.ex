@@ -7,28 +7,84 @@ defmodule Aoc24.Day24 do
   def part2(input) do
     values = process_input(input)
 
-    target = get_wire_val(values, "x") + get_wire_val(values, "y")
-    current = get_wire_val(values, "z")
-    t_str = Integer.to_string(target, 2)
-    c_str = Integer.to_string(current, 2)
-    max_len = max(String.length(t_str), String.length(c_str))
-    IO.puts("#{t_str |> String.pad_leading(max_len, "0")}")
-    IO.puts("#{c_str |> String.pad_leading(max_len, "0")}")
-
     values
-    |> set_input_wires(1, 1)
-    |> IO.inspect()
-    |> get_wire_val("z")
-    |> IO.inspect()
+    |> print_state()
+
+    Enum.map(0..45, fn i ->
+      z_key = wire_key("z", i)
+      IO.puts("-- #{z_key} --")
+
+      build_expr(values, z_key)
+      |> IO.inspect(limit: :infinity)
+    end)
 
     ""
+  end
+
+  def print_state(values) do
+    target = get_wire_val(values, "x") + get_wire_val(values, "y")
+    current = get_wire_val(values, "z")
+    t_str = Integer.to_string(target, 2) |> String.pad_leading(64, "0")
+    c_str = Integer.to_string(current, 2) |> String.pad_leading(64, "0")
+    IO.puts("Target\t#{t_str} - #{target}")
+    IO.puts("Current\t#{c_str} - #{current}")
+    print_mismatches(values)
+  end
+
+  def print_mismatches(values) do
+    target = get_wire_val(values, "x") + get_wire_val(values, "y")
+    current = get_wire_val(values, "z")
+    mismatches = mismatched_bit_indexes(target, current)
+    IO.puts("Mismatches at: #{Enum.join(mismatches, ", ")}\n")
+  end
+
+  def mismatched_bit_indexes(a, b, depth \\ 0)
+  def mismatched_bit_indexes(a, b, _) when a == b, do: []
+
+  def mismatched_bit_indexes(a, b, depth) do
+    remaining =
+      mismatched_bit_indexes(Integer.floor_div(a, 2), Integer.floor_div(b, 2), depth + 1)
+
+    if Integer.mod(a, 2) != Integer.mod(b, 2) do
+      [depth] ++ remaining
+    else
+      remaining
+    end
+  end
+
+  def build_expr(values, name) do
+    case Map.get(values, name) do
+      {op, lhs, rhs} -> {op, {lhs, build_expr(values, lhs)}, {rhs, build_expr(values, rhs)}}
+      int -> int
+    end
+  end
+
+  def relevant_wires(val) when is_integer(val), do: MapSet.new()
+  def relevant_wires({name, val}) when is_integer(val), do: MapSet.new([name])
+
+  def relevant_wires({_op, {lhs_name, lhs}, {rhs_name, rhs}}) do
+    MapSet.union(relevant_wires(lhs), relevant_wires(rhs))
+    |> MapSet.put(lhs_name)
+    |> MapSet.put(rhs_name)
+  end
+
+  def scan(values) do
+    for x <- 0..100_000, y <- 0..100_000 do
+      state =
+        values
+        |> set_input_wires(x, y)
+
+      if x + y != get_wire_val(state, "z") do
+        print_state(state)
+      end
+    end
   end
 
   def set_input_wires(values, x_val, y_val) do
     {new_vals, _} =
       Enum.reduce_while(0..63, {values, x_val}, fn i, {acc, cur_x} ->
         x_key =
-          "x" <> (Integer.to_string(i) |> String.pad_leading(2, "0"))
+          wire_key("x", i)
 
         case Map.get(values, x_key) do
           nil -> {:halt, {acc, 0}}
@@ -39,7 +95,7 @@ defmodule Aoc24.Day24 do
     {new_vals, _} =
       Enum.reduce_while(0..63, {new_vals, y_val}, fn i, {acc, cur_y} ->
         y_key =
-          "y" <> (Integer.to_string(i) |> String.pad_leading(2, "0"))
+          wire_key("y", i)
 
         case Map.get(values, y_key) do
           nil -> {:halt, {acc, 0}}
@@ -111,5 +167,9 @@ defmodule Aoc24.Day24 do
     |> Enum.reduce(values, fn {lhs, rhs, op, val}, acc ->
       Map.put(acc, val, {op, lhs, rhs})
     end)
+  end
+
+  def wire_key(prefix, index) do
+    prefix <> (Integer.to_string(index) |> String.pad_leading(2, "0"))
   end
 end
