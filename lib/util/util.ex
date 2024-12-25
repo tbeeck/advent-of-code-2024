@@ -100,4 +100,31 @@ defmodule Aoc24.Util do
     end)
     |> Enum.uniq_by(fn l -> List.to_tuple(l) end)
   end
+
+  # Choose combinations
+  def choose(_, n) when n == 0, do: []
+  def choose(vals, n) when n == 1, do: Enum.map(vals, fn val -> {val} end)
+
+  def choose(vals, n) do
+    next_groups =
+      choose(vals, n - 1)
+
+    Enum.flat_map(next_groups, fn group ->
+      existing = MapSet.new(Tuple.to_list(group))
+
+      Enum.map(vals, fn val ->
+        if val in existing do
+          nil
+        else
+          Tuple.insert_at(group, 0, val)
+          |> Tuple.to_list()
+          |> Enum.sort()
+          |> List.to_tuple()
+        end
+      end)
+    end)
+    |> Enum.filter(fn group -> group != nil end)
+    |> Enum.map(fn t -> t |> Tuple.to_list() |> Enum.sort() |> List.to_tuple() end)
+    |> Enum.uniq()
+  end
 end

@@ -51,6 +51,25 @@ defmodule Aoc24.Util.Graph do
     dijkstras(new_distances, edges, new_queue)
   end
 
+  def connected_to(_, queue, found) when length(queue) == 0, do: found
+
+  def connected_to(graph, queue, found) do
+    [cur | remaining_queue] = queue
+
+    found = MapSet.put(found, cur)
+
+    new_queue =
+      Enum.reduce(Map.get(graph, cur, []), remaining_queue, fn neighbor, queue_acc ->
+        if neighbor in found do
+          queue_acc
+        else
+          [neighbor] ++ queue_acc
+        end
+      end)
+
+    connected_to(graph, new_queue, found)
+  end
+
   defmodule UnionFind do
     defstruct [:parents]
     @type t :: %UnionFind{parents: tuple()}

@@ -1,4 +1,6 @@
 defmodule Aoc24.Day23 do
+  alias Aoc24.Util
+
   def part1(input) do
     graph =
       process_input(input)
@@ -8,13 +10,10 @@ defmodule Aoc24.Day23 do
       |> Enum.filter(fn s -> String.starts_with?(s, "t") end)
 
     Enum.reduce(relevant_keys, MapSet.new(), fn name, acc ->
-      IO.puts("--- #{name} ---")
-
-      available =
-        connected_to_directly(graph, name)
+      available = Map.get(graph, name)
 
       groupings =
-        choose(available, 2)
+        Util.choose(available, 2)
         |> Enum.map(fn t -> Tuple.insert_at(t, 0, name) end)
         |> MapSet.new()
 
@@ -26,60 +25,44 @@ defmodule Aoc24.Day23 do
     |> length()
   end
 
-  def choose(_, n) when n == 0, do: []
-  def choose(vals, n) when n == 1, do: Enum.map(vals, fn val -> {val} end)
+  def part2(input) do
+    graph =
+      process_input(input)
 
-  def choose(vals, n) do
-    next_groups =
-      choose(vals, n - 1)
+    graph
+    |> Enum.map(fn {c, l} -> [c] ++ l end)
+    |> Enum.reduce({}, fn l, acc ->
+      Enum.reduce(0..length(l), acc, fn choice, inner_acc ->
+        if choice > tuple_size(inner_acc) do
+          groups =
+            Util.choose(l, choice)
+            |> Enum.filter(fn group -> all_connected?(graph, group |> Tuple.to_list()) end)
 
-    Enum.flat_map(next_groups, fn group ->
-      existing = MapSet.new(Tuple.to_list(group))
-
-      Enum.map(vals, fn val ->
-        if val in existing do
-          nil
+          if length(groups) >= 1 do
+            List.first(groups)
+          else
+            inner_acc
+          end
         else
-          Tuple.insert_at(group, 0, val)
-          |> Tuple.to_list()
-          |> Enum.sort()
-          |> List.to_tuple()
+          inner_acc
         end
       end)
     end)
-    |> Enum.filter(fn group -> group != nil end)
-    |> Enum.map(fn t -> t |> Tuple.to_list() |> Enum.sort() |> List.to_tuple() end)
-    |> Enum.uniq()
-  end
-
-  def connected_to_directly(graph, computer) do
-    Map.get(graph, computer)
+    |> Tuple.to_list()
+    |> Enum.sort()
+    |> Enum.join(",")
   end
 
   def all_connected?(graph, list) do
-    [a, b, c] = list
-
-    a in Map.get(graph, b) and a in Map.get(graph, c) and b in Map.get(graph, a) and
-      b in Map.get(graph, c) and c in Map.get(graph, a) and c in Map.get(graph, b)
-  end
-
-  def connected_to(_, queue, found) when length(queue) == 0, do: found
-
-  def connected_to(graph, queue, found) do
-    [cur | remaining_queue] = queue
-
-    found = MapSet.put(found, cur)
-
-    new_queue =
-      Enum.reduce(Map.get(graph, cur, []), remaining_queue, fn neighbor, queue_acc ->
-        if neighbor in found do
-          queue_acc
+    Enum.all?(list, fn computer ->
+      Enum.all?(list, fn neighbor ->
+        if computer == neighbor do
+          true
         else
-          [neighbor] ++ queue_acc
+          computer in Map.get(graph, neighbor) and neighbor in Map.get(graph, computer)
         end
       end)
-
-    connected_to(graph, new_queue, found)
+    end)
   end
 
   def process_input(input) do
