@@ -1,13 +1,59 @@
 defmodule Aoc24.Day24 do
   def part1(input) do
-    values =
-      process_input(input)
-      |> IO.inspect()
+    process_input(input)
+    |> get_wire_val("z")
+  end
 
+  def part2(input) do
+    values = process_input(input)
+
+    target = get_wire_val(values, "x") + get_wire_val(values, "y")
+    current = get_wire_val(values, "z")
+    t_str = Integer.to_string(target, 2)
+    c_str = Integer.to_string(current, 2)
+    max_len = max(String.length(t_str), String.length(c_str))
+    IO.puts("#{t_str |> String.pad_leading(max_len, "0")}")
+    IO.puts("#{c_str |> String.pad_leading(max_len, "0")}")
+
+    values
+    |> set_input_wires(1, 1)
+    |> IO.inspect()
+    |> get_wire_val("z")
+    |> IO.inspect()
+
+    ""
+  end
+
+  def set_input_wires(values, x_val, y_val) do
+    {new_vals, _} =
+      Enum.reduce_while(0..63, {values, x_val}, fn i, {acc, cur_x} ->
+        x_key =
+          "x" <> (Integer.to_string(i) |> String.pad_leading(2, "0"))
+
+        case Map.get(values, x_key) do
+          nil -> {:halt, {acc, 0}}
+          _ -> {:cont, {Map.put(acc, x_key, Integer.mod(cur_x, 2)), Integer.floor_div(cur_x, 2)}}
+        end
+      end)
+
+    {new_vals, _} =
+      Enum.reduce_while(0..63, {new_vals, y_val}, fn i, {acc, cur_y} ->
+        y_key =
+          "y" <> (Integer.to_string(i) |> String.pad_leading(2, "0"))
+
+        case Map.get(values, y_key) do
+          nil -> {:halt, {acc, 0}}
+          _ -> {:cont, {Map.put(acc, y_key, Integer.mod(cur_y, 2)), Integer.floor_div(cur_y, 2)}}
+        end
+      end)
+
+    new_vals
+  end
+
+  def get_wire_val(values, prefix) do
     Enum.reduce_while(0..63, 0, fn i, acc ->
       key =
-        ("z" <> (Integer.to_string(i) |> String.pad_leading(2, "0")))
-        |> IO.inspect()
+        prefix <> (Integer.to_string(i) |> String.pad_leading(2, "0"))
 
       case Map.get(values, key) do
         nil -> {:halt, acc}
