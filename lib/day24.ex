@@ -27,32 +27,14 @@ defmodule Aoc24.Day24 do
       if real_pin != correct_pin do
         want =
           determine_composition(expression_names, correct_pin)
-          |> IO.inspect(limit: :infinity)
 
         {a, b} = find_swap(expression_names, correct_pin, real_pin)
-        |> IO.inspect()
 
         {values_acc |> swap_pins(a, b), MapSet.put(pins_acc, a) |> MapSet.put(b)}
-        # if is_binary(want) do
-        #   IO.puts("swap #{z_key} with #{want}")
-        #   {values_acc |> swap_pins(z_key, want), pins_acc}
-        # else
-        #   {op, a, b} = real_pin
-
-        #   IO.inspect(
-        #     {op, determine_composition(expression_names, a),
-        #      determine_composition(expression_names, b)}
-        #   )
-        #   {values_acc |> swap_pins(z_key, want), pins_acc}
-        # end
       else
         {values_acc, pins_acc}
       end
-
-      # build_expr(values, z_key)
-      # |> IO.inspect(limit: :infinity)
     end)
-    |> IO.inspect()
     |> elem(1)
     |> Enum.filter(fn t -> t != nil and t != "z45" end)
     |> Enum.sort()
