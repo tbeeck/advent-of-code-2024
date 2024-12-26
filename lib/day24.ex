@@ -7,9 +7,8 @@ defmodule Aoc24.Day24 do
   def part2(input) do
     values = process_input(input)
 
-    Enum.reduce(0..45, {values, MapSet.new()}, fn i, {values_acc, pins_acc} ->
+    Enum.reduce(0..44, {values, MapSet.new()}, fn i, {values_acc, pins_acc} ->
       z_key = wire_key("z", i)
-      IO.puts("-- #{z_key} --")
 
       expression_names =
         Enum.reduce(values_acc, MapSet.new(), fn {k, _}, acc ->
@@ -25,9 +24,6 @@ defmodule Aoc24.Day24 do
         |> normalize_expr()
 
       if real_pin != correct_pin do
-        want =
-          determine_composition(expression_names, correct_pin)
-
         {a, b} = find_swap(expression_names, correct_pin, real_pin)
 
         {values_acc |> swap_pins(a, b), MapSet.put(pins_acc, a) |> MapSet.put(b)}
@@ -36,7 +32,6 @@ defmodule Aoc24.Day24 do
       end
     end)
     |> elem(1)
-    |> Enum.filter(fn t -> t != nil and t != "z45" end)
     |> Enum.sort()
     |> Enum.join(",")
   end
