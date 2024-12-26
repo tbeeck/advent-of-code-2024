@@ -7,14 +7,35 @@ defmodule Aoc24.Day25 do
     locks =
       Enum.filter(all, &is_lock/1)
       |> Enum.map(&heights/1)
-      |> IO.inspect()
 
     keys =
       Enum.filter(all, fn grid -> not is_lock(grid) end)
       |> Enum.map(&heights/1)
-      |> IO.inspect()
 
-    0
+    Enum.with_index(locks)
+    |> Enum.reduce([], fn {lock, i}, acc ->
+      Enum.with_index(keys)
+      |> Enum.reduce(acc, fn {key, j}, inner_acc ->
+        if fits(lock, key) do
+          inner_acc ++ [{i, j}]
+        else
+          inner_acc
+        end
+      end)
+    end)
+    |> length()
+  end
+
+  def fits(lock, key) when length(lock) == 0 and length(key) == 0, do: true
+
+  def fits(lock, key) do
+    [a | rest_lock] = lock
+    [b | rest_key] = key
+
+    cond do
+      a + b <= 5 -> fits(rest_lock, rest_key)
+      true -> false
+    end
   end
 
   def is_lock(grid) do

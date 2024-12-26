@@ -707,7 +707,7 @@ defmodule Aoc24Test do
 
     test "part 1 input", %{test: test_name} do
       output = do_test(test_name, "day25/input.txt", &Aoc24.Day25.part1/1)
-      assert output == 0
+      assert output == 3116
     end
   end
 
