@@ -7,31 +7,109 @@ defmodule Aoc24.Day24 do
   def part2(input) do
     values = process_input(input)
 
-    values
-    |> print_state()
-
-    Enum.map(0..45, fn i ->
+    Enum.reduce(0..45, {values, MapSet.new()}, fn i, {values_acc, pins_acc} ->
       z_key = wire_key("z", i)
       IO.puts("-- #{z_key} --")
 
-      real_pin =
-        build_expr(values, z_key)
-        |> normalize_expr()
+      expression_names =
+        Enum.reduce(values_acc, MapSet.new(), fn {k, _}, acc ->
+          Map.put(acc, build_expr(values_acc, k) |> normalize_expr(), k)
+        end)
 
-      build_pin =
+      correct_pin =
         build_pin(i)
         |> normalize_expr()
 
-      if build_pin != real_pin do
-        IO.inspect(build_pin, limit: :infinity)
-        IO.inspect(real_pin, limit: :infinity)
+      real_pin =
+        build_expr(values_acc, z_key)
+        |> normalize_expr()
+
+      if real_pin != correct_pin do
+        want =
+          determine_composition(expression_names, correct_pin)
+          |> IO.inspect(limit: :infinity)
+
+        {a, b} = find_swap(expression_names, correct_pin, real_pin)
+        |> IO.inspect()
+
+        {values_acc |> swap_pins(a, b), MapSet.put(pins_acc, a) |> MapSet.put(b)}
+        # if is_binary(want) do
+        #   IO.puts("swap #{z_key} with #{want}")
+        #   {values_acc |> swap_pins(z_key, want), pins_acc}
+        # else
+        #   {op, a, b} = real_pin
+
+        #   IO.inspect(
+        #     {op, determine_composition(expression_names, a),
+        #      determine_composition(expression_names, b)}
+        #   )
+        #   {values_acc |> swap_pins(z_key, want), pins_acc}
+        # end
+      else
+        {values_acc, pins_acc}
       end
 
       # build_expr(values, z_key)
       # |> IO.inspect(limit: :infinity)
     end)
+    |> IO.inspect()
+    |> elem(1)
+    |> Enum.filter(fn t -> t != nil and t != "z45" end)
+    |> Enum.sort()
+    |> Enum.join(",")
+  end
 
-    ""
+  def find_swap(_, a, b) when is_binary(a) and is_binary(b) do
+    if a == b do
+      nil
+    else
+      {a, b}
+    end
+  end
+
+  def find_swap(names, a, b) when is_binary(a) and not is_binary(b) do
+    {a, Map.get(names, b)}
+  end
+
+  def find_swap(names, a, b) when not is_binary(a) and is_binary(b) do
+    {Map.get(names, a), b}
+  end
+
+  def find_swap(names, a, b) do
+    {a_op, a_lhs, a_rhs} = a
+    {b_op, b_lhs, b_rhs} = b
+
+    cond do
+      a_op != b_op -> {Map.get(names, a), Map.get(names, b)}
+      a_lhs == b_lhs -> find_swap(names, a_rhs, b_rhs)
+      a_lhs == b_rhs -> find_swap(names, a_rhs, b_lhs)
+      a_rhs == b_rhs -> find_swap(names, a_lhs, b_lhs)
+      a_rhs == b_lhs -> find_swap(names, a_lhs, b_rhs)
+    end
+  end
+
+  def determine_composition(_, expr) when is_binary(expr), do: expr
+
+  def determine_composition(names, expr) do
+    case Map.get(names, expr) do
+      name when is_binary(name) ->
+        name
+
+      nil ->
+        {op, lhs, rhs} = expr
+
+        {op, determine_composition(names, lhs), determine_composition(names, rhs)}
+        |> normalize_expr()
+    end
+  end
+
+  def swap_pins(values, a, b) do
+    a_old = Map.get(values, a)
+    b_old = Map.get(values, b)
+
+    values
+    |> Map.put(b, a_old)
+    |> Map.put(a, b_old)
   end
 
   def build_pin(bit) when bit == 0 do
@@ -65,52 +143,16 @@ defmodule Aoc24.Day24 do
     end
   end
 
-  def print_state(values) do
-    target = get_wire_val(values, "x") + get_wire_val(values, "y")
-    current = get_wire_val(values, "z")
-    t_str = Integer.to_string(target, 2) |> String.pad_leading(64, "0")
-    c_str = Integer.to_string(current, 2) |> String.pad_leading(64, "0")
-    IO.puts("Target\t#{t_str} - #{target}")
-    IO.puts("Current\t#{c_str} - #{current}")
-    print_mismatches(values)
-  end
-
-  def print_mismatches(values) do
-    target = get_wire_val(values, "x") + get_wire_val(values, "y")
-    current = get_wire_val(values, "z")
-    mismatches = mismatched_bit_indexes(target, current)
-    IO.puts("Mismatches at: #{Enum.join(mismatches, ", ")}\n")
-  end
-
-  def mismatched_bit_indexes(a, b, depth \\ 0)
-  def mismatched_bit_indexes(a, b, _) when a == b, do: []
-
-  def mismatched_bit_indexes(a, b, depth) do
-    remaining =
-      mismatched_bit_indexes(Integer.floor_div(a, 2), Integer.floor_div(b, 2), depth + 1)
-
-    if Integer.mod(a, 2) != Integer.mod(b, 2) do
-      [depth] ++ remaining
-    else
-      remaining
-    end
-  end
-
-  def build_expr_names(values, name) do
-    case Map.get(values, name) do
-      {op, lhs, rhs} ->
-        {op, {lhs, build_expr_names(values, lhs)}, {rhs, build_expr_names(values, rhs)}}
-
-      int ->
-        int
-    end
-  end
-
   def build_expr(values, name) do
     case Map.get(values, name) do
-      {op, lhs, rhs} -> {op, build_expr(values, lhs), build_expr(values, rhs)}
-      _ -> name
+      {op, lhs, rhs} ->
+        {op, build_expr(values, lhs), build_expr(values, rhs)}
+        |> normalize_expr()
+
+      _ ->
+        name
     end
+    |> normalize_expr()
   end
 
   def normalize_expr(expr) do
@@ -132,15 +174,6 @@ defmodule Aoc24.Day24 do
       bin ->
         bin
     end
-  end
-
-  def relevant_wires(val) when is_integer(val), do: MapSet.new()
-  def relevant_wires({name, val}) when is_integer(val), do: MapSet.new([name])
-
-  def relevant_wires({_op, {lhs_name, lhs}, {rhs_name, rhs}}) do
-    MapSet.union(relevant_wires(lhs), relevant_wires(rhs))
-    |> MapSet.put(lhs_name)
-    |> MapSet.put(rhs_name)
   end
 
   def set_input_wires(values, x_val, y_val) do

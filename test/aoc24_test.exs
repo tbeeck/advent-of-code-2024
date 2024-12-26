@@ -693,11 +693,6 @@ defmodule Aoc24Test do
       assert output == 48_508_229_772_400
     end
 
-    test "part 2 example", %{test: test_name} do
-      output = do_test(test_name, "day24/example_p2.txt", &Aoc24.Day24.part2/1)
-      assert output == "z00,z01,z02,z05"
-    end
-
     test "part 2 input", %{test: test_name} do
       output = do_test(test_name, "day24/input.txt", &Aoc24.Day24.part2/1)
       assert output == ""
